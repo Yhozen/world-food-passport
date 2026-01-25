@@ -3,9 +3,8 @@
 ## Current State Review
 
 - Next.js App Router with server actions and client components.
-- Auth uses a custom cookie session in `lib/auth.ts` (TO BE REMOVED).
-- Data access uses Neon serverless SQL in `lib/db.ts`.
-- Raw SQL schema lives in `scripts/setup-database.sql` (TO BE REMOVED).
+- Neon Auth integrated with middleware, API handler, and auth UI routes.
+- Prisma schema + client added; server actions use Prisma.
 - UI is mostly complete: landing, dashboard map + drawer, restaurant detail, add modal, stats, photo upload.
 
 ## Goals
@@ -39,27 +38,23 @@
 
 ## TODO List
 
-1. **Prisma setup**
-   - Add `prisma/schema.prisma` with models for restaurants, reviews, photos, countriesVisited.
-   - Configure datasource for Neon Postgres; generate Prisma client.
-   - Add initial migration (fresh start).
-2. **Auth integration**
-   - Remove custom cookie auth logic in `lib/auth.ts` (or keep only helper stubs if needed).
-   - Add Neon Auth middleware for `/dashboard` routes.
-   - Replace sign-in/up flows with Neon Auth default routes.
-3. **Data access refactor**
-   - Replace SQL in `lib/actions.ts` with Prisma equivalents.
-   - Keep existing behaviors: tags parsing, review create/update, visit count maintenance.
-4. **Blob upload path**
-   - Update `uploadPhoto` to use `food-passport/{userId}/{restaurantId}/{timestamp}-{filename}`.
-5. **Schema alignment**
-   - Use Prisma camelCase fields with `@map` to snake_case columns if needed.
-   - Maintain `countries_visited` denormalized table and update on create/delete.
-6. **Cleanup**
-   - Deprecate `lib/db.ts` types and SQL client.
-   - Remove or archive `scripts/setup-database.sql` once Prisma migration is in place.
+1. **Prisma setup** (done)
+   - `prisma/schema.prisma` added with mapped snake_case columns.
+   - Prisma client in `lib/prisma.ts` and generated client.
+2. **Auth integration** (done)
+   - Neon Auth middleware for `/dashboard` routes.
+   - Auth API handler and auth route pages added.
+3. **Data access refactor** (done)
+   - `lib/actions.ts` rebuilt on Prisma + Neon Auth.
+4. **Blob upload path** (done)
+   - `uploadPhoto` uses `food-passport/{userId}/{restaurantId}/{timestamp}-{filename}`.
+5. **Cleanup** (done)
+   - Removed `lib/auth.ts`, `lib/db.ts`, `/sign-in`, `/sign-up`.
+6. **Remaining**
+   - Run `bunx prisma migrate dev` once `DATABASE_URL` is set.
+   - Remove or archive `scripts/setup-database.sql` after migration if desired.
 
-## Data Model (Proposed)
+## Data Model (Current)
 
 - **Restaurant**
   - id (String, cuid/uuid)
@@ -92,9 +87,7 @@
 
 ## Open Questions (TBD)
 
-- Prisma table naming and `@map` strategy for exact snake_case alignment.
 - `countries_visited` behavior when count drops to 0: delete row or keep with 0.
-- Cuisine tags type: Postgres array vs JSON for future flexibility.
 - Map SVG complexity: confirm no need to reduce detail for performance.
 
 ## Implementation Notes
