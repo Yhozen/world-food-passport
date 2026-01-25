@@ -81,7 +81,7 @@ export function getVisitColor(visitCount: number): string {
 }
 
 export function getVisitLevel(
-  visitCount: number
+  visitCount: number,
 ): "none" | "low" | "medium" | "high" {
   if (visitCount === 0) return "none";
   if (visitCount <= 2) return "low";

@@ -1,7 +1,7 @@
 "use client";
 
 import { X, Plus, Star, MapPin, Lock, Calendar } from "lucide-react";
-import type { Restaurant } from "@/lib/db";
+import type { Restaurant } from "@/lib/types";
 import Link from "next/link";
 
 interface CountryDrawerProps {
@@ -130,9 +130,9 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
         )}
       </div>
 
-      {restaurant.cuisine_tags && restaurant.cuisine_tags.length > 0 && (
+      {restaurant.cuisineTags && restaurant.cuisineTags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-3">
-          {restaurant.cuisine_tags.slice(0, 3).map((tag) => (
+          {restaurant.cuisineTags.slice(0, 3).map((tag: string) => (
             <span
               key={tag}
               className="px-2 py-1 bg-accent/20 border-2 border-accent/50 text-xs font-mono uppercase text-accent"
@@ -143,10 +143,10 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
         </div>
       )}
 
-      {restaurant.visit_date && (
+      {restaurant.visitDate && (
         <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground font-mono">
           <Calendar className="w-3 h-3" />
-          {new Date(restaurant.visit_date).toLocaleDateString()}
+          {new Date(restaurant.visitDate).toLocaleDateString()}
         </div>
       )}
 

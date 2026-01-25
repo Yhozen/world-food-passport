@@ -1,92 +1,19 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { sql, type Restaurant, type Review, type Photo } from "./db";
-import { getSession, createSession, destroySession } from "./auth";
+import { neonAuth } from "@neondatabase/auth/next/server";
 import { put, del } from "@vercel/blob";
-import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import type { Photo, Restaurant, Review } from "@prisma/client";
 
-// Auth actions
-export async function signUp(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const name = formData.get("name") as string;
-
-  if (!email || !password) {
-    return { error: "Email and password are required" };
-  }
-
-  // Check if user exists
-  const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
-  if (existing.length > 0) {
-    return { error: "User already exists" };
-  }
-
-  // Hash password
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Create user
-  const result = await sql`
-    INSERT INTO users (email, password_hash, name)
-    VALUES (${email}, ${hashedPassword}, ${name || null})
-    RETURNING id, email, name
-  `;
-
-  const user = result[0];
-
-  // Create session
-  await createSession({
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-  });
-
-  redirect("/dashboard");
+async function requireUser() {
+  const { user } = await neonAuth();
+  return user ?? null;
 }
 
-export async function signIn(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-
-  if (!email || !password) {
-    return { error: "Email and password are required" };
-  }
-
-  // Find user
-  const result =
-    await sql`SELECT id, email, name, password_hash FROM users WHERE email = ${email}`;
-  if (result.length === 0) {
-    return { error: "Invalid credentials" };
-  }
-
-  const user = result[0];
-
-  // Verify password
-  const valid = await bcrypt.compare(password, user.password_hash);
-  if (!valid) {
-    return { error: "Invalid credentials" };
-  }
-
-  // Create session
-  await createSession({
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-  });
-
-  redirect("/dashboard");
-}
-
-export async function signOut() {
-  await destroySession();
-  redirect("/");
-}
-
-// Restaurant actions
 export async function createRestaurant(formData: FormData) {
-  const session = await getSession();
-  if (!session) {
+  const user = await requireUser();
+  if (!user) {
     return { error: "Unauthorized" };
   }
 
@@ -94,10 +21,10 @@ export async function createRestaurant(formData: FormData) {
   const countryCode = formData.get("country_code") as string;
   const countryName = formData.get("country_name") as string;
   const city = (formData.get("city") as string) || null;
-  const cuisineTags = formData.get("cuisine_tags") as string;
+  const cuisineTags = (formData.get("cuisine_tags") as string) || "";
   const visitDate = (formData.get("visit_date") as string) || null;
   const rating = formData.get("rating")
-    ? parseInt(formData.get("rating") as string)
+    ? parseInt(formData.get("rating") as string, 10)
     : null;
   const review = (formData.get("review") as string) || null;
 
@@ -108,151 +35,193 @@ export async function createRestaurant(formData: FormData) {
   const tags = cuisineTags
     ? cuisineTags
         .split(",")
-        .map((t) => t.trim())
+        .map((tag) => tag.trim())
         .filter(Boolean)
     : [];
 
-  // Create restaurant
-  const restaurantResult = await sql`
-    INSERT INTO restaurants (user_id, name, country_code, country_name, city, cuisine_tags, visit_date, rating)
-    VALUES (${session.userId}, ${name}, ${countryCode}, ${countryName}, ${city}, ${tags}, ${visitDate}, ${rating})
-    RETURNING id
-  `;
+  const restaurant = await prisma.restaurant.create({
+    data: {
+      userId: user.id,
+      name,
+      countryCode,
+      countryName,
+      city,
+      cuisineTags: tags,
+      visitDate: visitDate ? new Date(visitDate) : null,
+      rating,
+    },
+  });
 
-  const restaurantId = restaurantResult[0].id;
-
-  // Create review if provided
   if (review) {
-    await sql`
-      INSERT INTO reviews (restaurant_id, user_id, content)
-      VALUES (${restaurantId}, ${session.userId}, ${review})
-    `;
+    await prisma.review.create({
+      data: {
+        restaurantId: restaurant.id,
+        userId: user.id,
+        content: review,
+      },
+    });
   }
 
-  // Update country visit count
-  await sql`
-    INSERT INTO countries_visited (user_id, country_code, country_name, visit_count)
-    VALUES (${session.userId}, ${countryCode}, ${countryName}, 1)
-    ON CONFLICT (user_id, country_code) 
-    DO UPDATE SET visit_count = countries_visited.visit_count + 1, updated_at = NOW()
-  `;
+  await prisma.countriesVisited.upsert({
+    where: {
+      userId_countryCode: {
+        userId: user.id,
+        countryCode,
+      },
+    },
+    update: {
+      visitCount: { increment: 1 },
+      countryName,
+    },
+    create: {
+      userId: user.id,
+      countryCode,
+      countryName,
+      visitCount: 1,
+    },
+  });
 
   revalidatePath("/dashboard");
-  return { success: true, restaurantId };
+  return { success: true, restaurantId: restaurant.id };
 }
 
 export async function updateRestaurant(formData: FormData) {
-  const session = await getSession();
-  if (!session) {
+  const user = await requireUser();
+  if (!user) {
     return { error: "Unauthorized" };
   }
 
   const id = formData.get("id") as string;
   const name = formData.get("name") as string;
   const city = (formData.get("city") as string) || null;
-  const cuisineTags = formData.get("cuisine_tags") as string;
+  const cuisineTags = (formData.get("cuisine_tags") as string) || "";
   const visitDate = (formData.get("visit_date") as string) || null;
   const rating = formData.get("rating")
-    ? parseInt(formData.get("rating") as string)
+    ? parseInt(formData.get("rating") as string, 10)
     : null;
 
   const tags = cuisineTags
     ? cuisineTags
         .split(",")
-        .map((t) => t.trim())
+        .map((tag) => tag.trim())
         .filter(Boolean)
     : [];
 
-  await sql`
-    UPDATE restaurants 
-    SET name = ${name}, city = ${city}, cuisine_tags = ${tags}, visit_date = ${visitDate}, rating = ${rating}, updated_at = NOW()
-    WHERE id = ${id} AND user_id = ${session.userId}
-  `;
+  await prisma.restaurant.updateMany({
+    where: {
+      id,
+      userId: user.id,
+    },
+    data: {
+      name,
+      city,
+      cuisineTags: tags,
+      visitDate: visitDate ? new Date(visitDate) : null,
+      rating,
+    },
+  });
 
   revalidatePath("/dashboard");
   return { success: true };
 }
 
 export async function deleteRestaurant(id: string) {
-  const session = await getSession();
-  if (!session) {
+  const user = await requireUser();
+  if (!user) {
     return { error: "Unauthorized" };
   }
 
-  // Get restaurant to update country count
-  const restaurant = await sql`
-    SELECT country_code FROM restaurants WHERE id = ${id} AND user_id = ${session.userId}
-  `;
+  const restaurant = await prisma.restaurant.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      countryCode: true,
+    },
+  });
 
-  if (restaurant.length === 0) {
+  if (!restaurant) {
     return { error: "Restaurant not found" };
   }
 
-  // Delete photos from blob storage
-  const photos = await sql`
-    SELECT storage_url FROM photos WHERE restaurant_id = ${id} AND user_id = ${session.userId}
-  `;
+  const photos = await prisma.photo.findMany({
+    where: {
+      restaurantId: id,
+      userId: user.id,
+    },
+    select: {
+      storageUrl: true,
+    },
+  });
 
   for (const photo of photos) {
     try {
-      await del(photo.storage_url);
+      await del(photo.storageUrl);
     } catch {
-      // Continue even if blob deletion fails
+      // Ignore blob deletion failures
     }
   }
 
-  // Delete photos, reviews, then restaurant
-  await sql`DELETE FROM photos WHERE restaurant_id = ${id}`;
-  await sql`DELETE FROM reviews WHERE restaurant_id = ${id}`;
-  await sql`DELETE FROM restaurants WHERE id = ${id} AND user_id = ${session.userId}`;
-
-  // Update country visit count
-  await sql`
-    UPDATE countries_visited 
-    SET visit_count = visit_count - 1, updated_at = NOW()
-    WHERE user_id = ${session.userId} AND country_code = ${restaurant[0].country_code}
-  `;
+  await prisma.$transaction([
+    prisma.photo.deleteMany({
+      where: { restaurantId: id },
+    }),
+    prisma.review.deleteMany({
+      where: { restaurantId: id },
+    }),
+    prisma.restaurant.deleteMany({
+      where: { id, userId: user.id },
+    }),
+    prisma.countriesVisited.updateMany({
+      where: {
+        userId: user.id,
+        countryCode: restaurant.countryCode,
+      },
+      data: {
+        visitCount: { decrement: 1 },
+      },
+    }),
+  ]);
 
   revalidatePath("/dashboard");
   return { success: true };
 }
 
-// Review actions
 export async function saveReview(formData: FormData) {
-  const session = await getSession();
-  if (!session) {
+  const user = await requireUser();
+  if (!user) {
     return { error: "Unauthorized" };
   }
 
   const restaurantId = formData.get("restaurant_id") as string;
   const content = formData.get("content") as string;
 
-  // Check if review exists
-  const existing = await sql`
-    SELECT id FROM reviews WHERE restaurant_id = ${restaurantId} AND user_id = ${session.userId}
-  `;
-
-  if (existing.length > 0) {
-    await sql`
-      UPDATE reviews 
-      SET content = ${content}, updated_at = NOW()
-      WHERE restaurant_id = ${restaurantId} AND user_id = ${session.userId}
-    `;
-  } else {
-    await sql`
-      INSERT INTO reviews (restaurant_id, user_id, content)
-      VALUES (${restaurantId}, ${session.userId}, ${content})
-    `;
-  }
+  await prisma.review.upsert({
+    where: {
+      restaurantId_userId: {
+        restaurantId,
+        userId: user.id,
+      },
+    },
+    update: {
+      content,
+    },
+    create: {
+      restaurantId,
+      userId: user.id,
+      content,
+    },
+  });
 
   revalidatePath("/dashboard");
   return { success: true };
 }
 
-// Photo actions
 export async function uploadPhoto(formData: FormData) {
-  const session = await getSession();
-  if (!session) {
+  const user = await requireUser();
+  if (!user) {
     return { error: "Unauthorized" };
   }
 
@@ -264,73 +233,82 @@ export async function uploadPhoto(formData: FormData) {
     return { error: "File and restaurant ID are required" };
   }
 
-  // Upload to Vercel Blob
-  const blob = await put(`food-passport/${session.userId}/${Date.now()}-${file.name}`, file, {
-    access: "public",
-  });
+  const blob = await put(
+    `food-passport/${user.id}/${restaurantId}/${Date.now()}-${file.name}`,
+    file,
+    {
+      access: "public",
+    },
+  );
 
-  // Save photo record
-  await sql`
-    INSERT INTO photos (restaurant_id, user_id, storage_url, caption)
-    VALUES (${restaurantId}, ${session.userId}, ${blob.url}, ${caption})
-  `;
+  await prisma.photo.create({
+    data: {
+      restaurantId,
+      userId: user.id,
+      storageUrl: blob.url,
+      caption,
+    },
+  });
 
   revalidatePath("/dashboard");
   return { success: true, url: blob.url };
 }
 
 export async function deletePhoto(id: string) {
-  const session = await getSession();
-  if (!session) {
+  const user = await requireUser();
+  if (!user) {
     return { error: "Unauthorized" };
   }
 
-  // Get photo URL to delete from blob
-  const photo = await sql`
-    SELECT storage_url FROM photos WHERE id = ${id} AND user_id = ${session.userId}
-  `;
+  const photo = await prisma.photo.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
 
-  if (photo.length > 0) {
+  if (photo) {
     try {
-      await del(photo[0].storage_url);
+      await del(photo.storageUrl);
     } catch {
-      // Continue even if blob deletion fails
+      // Ignore blob deletion failures
     }
   }
 
-  await sql`DELETE FROM photos WHERE id = ${id} AND user_id = ${session.userId}`;
+  await prisma.photo.deleteMany({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
 
   revalidatePath("/dashboard");
   return { success: true };
 }
 
-// Query functions
 export async function getUserRestaurants(): Promise<Restaurant[]> {
-  const session = await getSession();
-  if (!session) return [];
+  const user = await requireUser();
+  if (!user) return [];
 
-  const result = await sql`
-    SELECT * FROM restaurants 
-    WHERE user_id = ${session.userId}
-    ORDER BY created_at DESC
-  `;
-
-  return result as Restaurant[];
+  return prisma.restaurant.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "desc" },
+  });
 }
 
 export async function getRestaurantsByCountry(
-  countryCode: string
+  countryCode: string,
 ): Promise<Restaurant[]> {
-  const session = await getSession();
-  if (!session) return [];
+  const user = await requireUser();
+  if (!user) return [];
 
-  const result = await sql`
-    SELECT * FROM restaurants 
-    WHERE user_id = ${session.userId} AND country_code = ${countryCode}
-    ORDER BY visit_date DESC NULLS LAST, created_at DESC
-  `;
-
-  return result as Restaurant[];
+  return prisma.restaurant.findMany({
+    where: {
+      userId: user.id,
+      countryCode,
+    },
+    orderBy: [{ visitDate: "desc" }, { createdAt: "desc" }],
+  });
 }
 
 export async function getRestaurantWithDetails(id: string): Promise<{
@@ -338,41 +316,51 @@ export async function getRestaurantWithDetails(id: string): Promise<{
   review: Review | null;
   photos: Photo[];
 } | null> {
-  const session = await getSession();
-  if (!session) return null;
+  const user = await requireUser();
+  if (!user) return null;
 
-  const restaurantResult = await sql`
-    SELECT * FROM restaurants WHERE id = ${id} AND user_id = ${session.userId}
-  `;
+  const restaurant = await prisma.restaurant.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
 
-  if (restaurantResult.length === 0) return null;
+  if (!restaurant) return null;
 
-  const reviewResult = await sql`
-    SELECT * FROM reviews WHERE restaurant_id = ${id} AND user_id = ${session.userId}
-  `;
-
-  const photosResult = await sql`
-    SELECT * FROM photos WHERE restaurant_id = ${id} AND user_id = ${session.userId}
-    ORDER BY uploaded_at DESC
-  `;
+  const [review, photos] = await Promise.all([
+    prisma.review.findFirst({
+      where: {
+        restaurantId: id,
+        userId: user.id,
+      },
+    }),
+    prisma.photo.findMany({
+      where: {
+        restaurantId: id,
+        userId: user.id,
+      },
+      orderBy: { uploadedAt: "desc" },
+    }),
+  ]);
 
   return {
-    restaurant: restaurantResult[0] as Restaurant,
-    review: reviewResult.length > 0 ? (reviewResult[0] as Review) : null,
-    photos: photosResult as Photo[],
+    restaurant,
+    review,
+    photos,
   };
 }
 
 export async function getCountryVisits(): Promise<Map<string, number>> {
-  const session = await getSession();
-  if (!session) return new Map();
+  const user = await requireUser();
+  if (!user) return new Map();
 
-  const result = await sql`
-    SELECT country_code, visit_count FROM countries_visited
-    WHERE user_id = ${session.userId}
-  `;
+  const result = await prisma.countriesVisited.findMany({
+    where: { userId: user.id },
+    select: { countryCode: true, visitCount: true },
+  });
 
-  return new Map(result.map((r) => [r.country_code, r.visit_count]));
+  return new Map(result.map((row) => [row.countryCode, row.visitCount]));
 }
 
 export async function getUserStats(): Promise<{
@@ -382,8 +370,8 @@ export async function getUserStats(): Promise<{
   cuisineBreakdown: { cuisine: string; count: number }[];
   recentVisits: Restaurant[];
 }> {
-  const session = await getSession();
-  if (!session) {
+  const user = await requireUser();
+  if (!user) {
     return {
       totalCountries: 0,
       totalRestaurants: 0,
@@ -393,43 +381,53 @@ export async function getUserStats(): Promise<{
     };
   }
 
-  const countriesResult = await sql`
-    SELECT COUNT(*) as count FROM countries_visited 
-    WHERE user_id = ${session.userId} AND visit_count > 0
-  `;
+  const [
+    totalCountries,
+    totalRestaurants,
+    totalPhotos,
+    cuisineRows,
+    recentVisits,
+  ] = await Promise.all([
+    prisma.countriesVisited.count({
+      where: {
+        userId: user.id,
+        visitCount: { gt: 0 },
+      },
+    }),
+    prisma.restaurant.count({
+      where: { userId: user.id },
+    }),
+    prisma.photo.count({
+      where: { userId: user.id },
+    }),
+    prisma.restaurant.findMany({
+      where: { userId: user.id },
+      select: { cuisineTags: true },
+    }),
+    prisma.restaurant.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+  ]);
 
-  const restaurantsResult = await sql`
-    SELECT COUNT(*) as count FROM restaurants WHERE user_id = ${session.userId}
-  `;
+  const cuisineMap = new Map<string, number>();
+  for (const row of cuisineRows) {
+    for (const tag of row.cuisineTags) {
+      cuisineMap.set(tag, (cuisineMap.get(tag) ?? 0) + 1);
+    }
+  }
 
-  const photosResult = await sql`
-    SELECT COUNT(*) as count FROM photos WHERE user_id = ${session.userId}
-  `;
-
-  const cuisineResult = await sql`
-    SELECT unnest(cuisine_tags) as cuisine, COUNT(*) as count
-    FROM restaurants
-    WHERE user_id = ${session.userId}
-    GROUP BY cuisine
-    ORDER BY count DESC
-    LIMIT 10
-  `;
-
-  const recentResult = await sql`
-    SELECT * FROM restaurants 
-    WHERE user_id = ${session.userId}
-    ORDER BY created_at DESC
-    LIMIT 5
-  `;
+  const cuisineBreakdown = Array.from(cuisineMap.entries())
+    .map(([cuisine, count]) => ({ cuisine, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
 
   return {
-    totalCountries: parseInt(countriesResult[0].count),
-    totalRestaurants: parseInt(restaurantsResult[0].count),
-    totalPhotos: parseInt(photosResult[0].count),
-    cuisineBreakdown: cuisineResult.map((r) => ({
-      cuisine: r.cuisine,
-      count: parseInt(r.count),
-    })),
-    recentVisits: recentResult as Restaurant[],
+    totalCountries,
+    totalRestaurants,
+    totalPhotos,
+    cuisineBreakdown,
+    recentVisits,
   };
 }

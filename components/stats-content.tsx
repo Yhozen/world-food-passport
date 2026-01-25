@@ -12,7 +12,7 @@ import {
   Star,
   MapPin,
 } from "lucide-react";
-import type { Restaurant } from "@/lib/db";
+import type { Restaurant } from "@/lib/types";
 import Link from "next/link";
 import { countries } from "@/lib/countries";
 
@@ -226,7 +226,7 @@ export function StatsContent({ stats, countryVisits }: StatsContentProps) {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span className="px-2 py-0.5 bg-primary border-2 border-black text-black text-xs font-bold">
-                    {restaurant.country_code}
+                    {restaurant.countryCode}
                   </span>
                   {restaurant.rating && (
                     <span className="flex items-center gap-1 text-sm">

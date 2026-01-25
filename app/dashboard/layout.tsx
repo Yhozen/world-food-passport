@@ -1,5 +1,5 @@
-import React from "react"
-import { getSession } from "@/lib/auth";
+import React from "react";
+import { neonAuth } from "@neondatabase/auth/next/server";
 import { redirect } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 
@@ -8,15 +8,15 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  const { user } = await neonAuth();
 
-  if (!session) {
-    redirect("/sign-in");
+  if (!user) {
+    redirect("/auth/sign-in");
   }
 
   return (
     <div className="min-h-screen bg-background flex">
-      <DashboardSidebar session={session} />
+      <DashboardSidebar user={{ name: user.name, email: user.email }} />
       <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );

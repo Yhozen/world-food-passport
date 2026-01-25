@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react"
+import React from "react";
 
 import { useState, useRef, useTransition } from "react";
 import { X, Upload, Loader2, ImageIcon } from "lucide-react";
@@ -123,7 +123,9 @@ export function PhotoUpload({
             onClick={() => fileInputRef.current?.click()}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
-            onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+            onKeyDown={(e) =>
+              e.key === "Enter" && fileInputRef.current?.click()
+            }
             role="button"
             tabIndex={0}
             className={`
@@ -154,9 +156,7 @@ export function PhotoUpload({
             ) : (
               <div className="py-12 text-center">
                 <ImageIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="font-bold uppercase mb-2">
-                  Drop your photo here
-                </p>
+                <p className="font-bold uppercase mb-2">Drop your photo here</p>
                 <p className="text-sm text-muted-foreground font-mono">
                   or click to browse
                 </p>

@@ -16,7 +16,7 @@ import {
   Edit3,
   Save,
 } from "lucide-react";
-import type { Restaurant, Review, Photo } from "@/lib/db";
+import type { Restaurant, Review, Photo } from "@/lib/types";
 import { deleteRestaurant, saveReview, deletePhoto } from "@/lib/actions";
 import { PhotoUpload } from "./photo-upload";
 import { useRouter } from "next/navigation";
@@ -61,7 +61,7 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
 
   const handlePhotoUploaded = (url: string) => {
     setPhotos([
-      { id: Date.now().toString(), storage_url: url, caption: null } as Photo,
+      { id: Date.now().toString(), storageUrl: url, caption: null } as Photo,
       ...photos,
     ]);
     setShowPhotoUpload(false);
@@ -92,22 +92,24 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="px-3 py-1 bg-primary border-4 border-black text-black font-bold text-sm">
-                {restaurant.country_code}
+                {restaurant.countryCode}
               </div>
-              <h1 className="text-3xl font-bold uppercase">{restaurant.name}</h1>
+              <h1 className="text-3xl font-bold uppercase">
+                {restaurant.name}
+              </h1>
             </div>
 
             <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
               {restaurant.city && (
                 <span className="flex items-center gap-1 font-mono">
                   <MapPin className="w-4 h-4" />
-                  {restaurant.city}, {restaurant.country_name}
+                  {restaurant.city}, {restaurant.countryName}
                 </span>
               )}
-              {restaurant.visit_date && (
+              {restaurant.visitDate && (
                 <span className="flex items-center gap-1 font-mono">
                   <Calendar className="w-4 h-4" />
-                  {new Date(restaurant.visit_date).toLocaleDateString()}
+                  {new Date(restaurant.visitDate).toLocaleDateString()}
                 </span>
               )}
             </div>
@@ -124,9 +126,9 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
         </div>
 
         {/* Cuisine Tags */}
-        {restaurant.cuisine_tags && restaurant.cuisine_tags.length > 0 && (
+        {restaurant.cuisineTags && restaurant.cuisineTags.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
-            {restaurant.cuisine_tags.map((tag) => (
+            {restaurant.cuisineTags.map((tag: string) => (
               <span
                 key={tag}
                 className="px-3 py-1 bg-accent/20 border-2 border-accent/50 text-sm font-mono uppercase text-accent"
@@ -171,7 +173,7 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
                 className="aspect-square relative border-4 border-black overflow-hidden hover:scale-[1.02] transition-transform"
               >
                 <Image
-                  src={photo.storage_url || "/placeholder.svg"}
+                  src={photo.storageUrl || "/placeholder.svg"}
                   alt={photo.caption || "Restaurant photo"}
                   fill
                   className="object-cover"
@@ -329,7 +331,7 @@ function PhotoLightbox({
       <div className="fixed inset-4 md:inset-8 z-50 flex items-center justify-center">
         <div className="relative max-w-full max-h-full">
           <Image
-            src={photo.storage_url || "/placeholder.svg"}
+            src={photo.storageUrl || "/placeholder.svg"}
             alt={photo.caption || "Restaurant photo"}
             width={1200}
             height={800}

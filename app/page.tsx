@@ -1,11 +1,11 @@
-import React from "react"
+import React from "react";
 import Link from "next/link";
-import { getSession } from "@/lib/auth";
+import { neonAuth } from "@neondatabase/auth/next/server";
 import { redirect } from "next/navigation";
 import { Globe, Lock, Camera, MapPin, Utensils } from "lucide-react";
 
 export default async function LandingPage() {
-  const session = await getSession();
+  const { session } = await neonAuth();
   if (session) {
     redirect("/dashboard");
   }
@@ -31,13 +31,13 @@ export default async function LandingPage() {
             </div>
             <div className="flex items-center gap-4">
               <Link
-                href="/sign-in"
+                href="/auth/sign-in"
                 className="px-6 py-3 border-4 border-black bg-background text-foreground font-bold uppercase tracking-wide shadow-[4px_4px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
               >
                 Sign In
               </Link>
               <Link
-                href="/sign-up"
+                href="/auth/sign-up"
                 className="px-6 py-3 border-4 border-black bg-primary text-black font-bold uppercase tracking-wide shadow-[4px_4px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
               >
                 Get Started
@@ -60,7 +60,7 @@ export default async function LandingPage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
               <Link
-                href="/sign-up"
+                href="/auth/sign-up"
                 className="px-10 py-5 border-4 border-black bg-primary text-black font-bold text-xl uppercase tracking-wide shadow-[6px_6px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#000] transition-all"
               >
                 Start Your Passport
@@ -174,13 +174,17 @@ export default async function LandingPage() {
                   </div>
                 </div>
                 <div className="p-4 border-4 border-black bg-muted">
-                  <div className="text-3xl font-bold text-secondary mb-1">0</div>
+                  <div className="text-3xl font-bold text-secondary mb-1">
+                    0
+                  </div>
                   <div className="text-sm font-mono uppercase">
                     Public Profiles
                   </div>
                 </div>
                 <div className="p-4 border-4 border-black bg-muted">
-                  <div className="text-3xl font-bold text-accent mb-1">100%</div>
+                  <div className="text-3xl font-bold text-accent mb-1">
+                    100%
+                  </div>
                   <div className="text-sm font-mono uppercase">Your Data</div>
                 </div>
               </div>
@@ -199,7 +203,7 @@ export default async function LandingPage() {
             Join food lovers who track their culinary adventures privately.
           </p>
           <Link
-            href="/sign-up"
+            href="/auth/sign-up"
             className="inline-block px-12 py-5 border-4 border-black bg-black text-primary font-bold text-xl uppercase tracking-wide shadow-[6px_6px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] transition-all"
           >
             Create Free Account

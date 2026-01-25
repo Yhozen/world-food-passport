@@ -5,7 +5,7 @@ import { WorldMap } from "./world-map";
 import { CountryDrawer } from "./country-drawer";
 import { AddRestaurantModal } from "./add-restaurant-modal";
 import { getRestaurantsByCountry } from "@/lib/actions";
-import type { Restaurant } from "@/lib/db";
+import type { Restaurant } from "@/lib/types";
 
 interface DashboardContentProps {
   countryVisits: Map<string, number>;

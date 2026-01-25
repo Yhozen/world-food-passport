@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "@/lib/actions";
+import { authClient } from "@/lib/auth/client";
 import {
   Globe,
   BarChart3,
@@ -12,13 +12,14 @@ import {
   Utensils,
   Lock,
 } from "lucide-react";
-import type { Session } from "@/lib/auth";
-
 interface DashboardSidebarProps {
-  session: Session;
+  user: {
+    name?: string | null;
+    email?: string | null;
+  };
 }
 
-export function DashboardSidebar({ session }: DashboardSidebarProps) {
+export function DashboardSidebar({ user }: DashboardSidebarProps) {
   const pathname = usePathname();
 
   const navItems = [
@@ -75,21 +76,22 @@ export function DashboardSidebar({ session }: DashboardSidebarProps) {
       {/* User section */}
       <div className="p-4 border-t-4 border-black">
         <div className="mb-4">
-          <p className="font-bold truncate">{session.name || "Food Lover"}</p>
+          <p className="font-bold truncate">{user.name || "Food Lover"}</p>
           <p className="text-xs text-muted-foreground truncate font-mono">
-            {session.email}
+            {user.email}
           </p>
         </div>
 
-        <form action={signOut}>
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 border-4 border-black bg-background text-foreground font-bold uppercase text-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
-        </form>
+        <button
+          type="button"
+          onClick={() => {
+            void authClient.signOut();
+          }}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 border-4 border-black bg-background text-foreground font-bold uppercase text-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
+        >
+          <LogOut className="w-4 h-4" />
+          Sign Out
+        </button>
       </div>
     </aside>
   );
