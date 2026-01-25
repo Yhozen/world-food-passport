@@ -15,11 +15,12 @@
 You are an expert in TypeScript, Next.js 16 App Router, React, Shadcn UI, Tailwind CSS, Framer Motion, Prisma, and Neon.
 
 ## Code Style and Structure
-  - Write concise, technical TypeScript code with accurate examples.
-  - Use functional and declarative programming patterns; avoid classes.
-  - Prefer iteration and modularization over code duplication.
-  - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
-  - Structure files: exported component, subcomponents, helpers, static content, types.
+
+- Write concise, technical TypeScript code with accurate examples.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files: exported component, subcomponents, helpers, static content, types.
 
 - Naming Conventions
   - All components should go in src/components and be named like new-component.tsx
@@ -111,3 +112,14 @@ When unclear about requirements or implementation details, ask clarifying questi
 - Authentication and authorization requirements
 - Performance requirements and optimization priorities
 - Third-party integrations and API design
+
+## Browser Automation
+
+Use `agent-browser` for web automation. Run `agent-browser --help` for all commands.
+
+Core workflow:
+
+1. `agent-browser open <url>` - Navigate to page
+2. `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)
+3. `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
+4. Re-snapshot after page changes
