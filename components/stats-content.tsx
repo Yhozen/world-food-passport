@@ -1,20 +1,19 @@
 "use client";
 
-import React from "react"
-
-import {
-  Globe,
-  Utensils,
-  Camera,
-  TrendingUp,
-  Award,
-  Lock,
-  Star,
-  MapPin,
-} from "lucide-react";
-import type { Restaurant } from "@/lib/types";
+import React from "react";
 import Link from "next/link";
+import {
+  Award,
+  Camera,
+  Globe,
+  Lock,
+  MapPin,
+  Star,
+  TrendingUp,
+  Utensils,
+} from "lucide-react";
 import { countries } from "@/lib/countries";
+import type { Restaurant } from "@/lib/types";
 
 interface StatsContentProps {
   stats: {
@@ -33,18 +32,28 @@ export function StatsContent({ stats, countryVisits }: StatsContentProps) {
     (stats.totalCountries / totalPossibleCountries) * 100
   );
 
-  // Calculate foodie level
-  const getFoodieLevel = () => {
-    if (stats.totalRestaurants >= 100) return { level: "Master Chef", color: "bg-primary" };
-    if (stats.totalRestaurants >= 50) return { level: "Food Expert", color: "bg-secondary" };
-    if (stats.totalRestaurants >= 25) return { level: "Adventurer", color: "bg-accent" };
-    if (stats.totalRestaurants >= 10) return { level: "Explorer", color: "bg-chart-4" };
-    return { level: "Beginner", color: "bg-muted" };
-  };
+  function getFoodieLevel() {
+    if (stats.totalRestaurants >= 100) {
+      return { level: "Master Chef", tone: "bg-amber-100 text-amber-800" };
+    }
+
+    if (stats.totalRestaurants >= 50) {
+      return { level: "Food Expert", tone: "bg-rose-100 text-rose-800" };
+    }
+
+    if (stats.totalRestaurants >= 25) {
+      return { level: "Adventurer", tone: "bg-emerald-100 text-emerald-800" };
+    }
+
+    if (stats.totalRestaurants >= 10) {
+      return { level: "Explorer", tone: "bg-sky-100 text-sky-800" };
+    }
+
+    return { level: "Beginner", tone: "bg-slate-100 text-slate-700" };
+  }
 
   const foodieLevel = getFoodieLevel();
 
-  // Get top countries
   const topCountries = Array.from(countryVisits.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
@@ -56,137 +65,135 @@ export function StatsContent({ stats, countryVisits }: StatsContentProps) {
 
   return (
     <div className="space-y-8">
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<Globe className="w-6 h-6" />}
           value={stats.totalCountries}
           label="Countries"
-          color="bg-primary"
+          tone="bg-amber-100 text-amber-800"
           subtext={`of ${totalPossibleCountries}`}
         />
         <StatCard
           icon={<Utensils className="w-6 h-6" />}
           value={stats.totalRestaurants}
           label="Restaurants"
-          color="bg-secondary"
+          tone="bg-rose-100 text-rose-800"
         />
         <StatCard
           icon={<Camera className="w-6 h-6" />}
           value={stats.totalPhotos}
           label="Photos"
-          color="bg-accent"
+          tone="bg-sky-100 text-sky-800"
         />
         <StatCard
           icon={<Award className="w-6 h-6" />}
           value={foodieLevel.level}
           label="Foodie Level"
-          color={foodieLevel.color}
+          tone={foodieLevel.tone}
           isText
         />
       </div>
 
-      {/* Progress Bar */}
-      <div className="border-4 border-black bg-card p-6 shadow-[4px_4px_0px_0px_#000]">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold uppercase flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" />
+      <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-amber-600" />
             World Progress
           </h2>
-          <span className="text-2xl font-bold text-primary">
+          <span className="text-2xl font-semibold text-slate-900">
             {progressPercentage}%
           </span>
         </div>
-        <div className="h-8 bg-muted border-4 border-black overflow-hidden">
+        <div className="mt-4 h-2.5 rounded-full bg-slate-200 overflow-hidden">
           <div
-            className="h-full bg-primary transition-all duration-500"
+            className="h-full rounded-full bg-amber-500 transition-all duration-500"
             style={{ width: `${progressPercentage}%` }}
           />
         </div>
-        <p className="mt-2 text-sm text-muted-foreground font-mono">
+        <p className="mt-3 text-sm text-slate-600">
           {stats.totalCountries} countries visited out of {totalPossibleCountries}{" "}
           tracked
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Top Countries */}
-        <div className="border-4 border-black bg-card p-6 shadow-[4px_4px_0px_0px_#000]">
-          <h2 className="text-xl font-bold uppercase mb-6 flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-secondary" />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-rose-600" />
             Top Countries
           </h2>
           {topCountries.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">
+            <p className="text-slate-600 text-center py-8">
               Start logging restaurants to see your top destinations!
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="mt-5 space-y-3">
               {topCountries.map((country, index) => (
                 <div
                   key={country.code}
-                  className="flex items-center gap-4 p-3 border-4 border-black bg-background"
+                  className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white/70 p-3"
                 >
                   <div
-                    className={`w-10 h-10 flex items-center justify-center font-bold text-black border-4 border-black shadow-[2px_2px_0px_0px_#000] ${
+                    className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-semibold ${
                       index === 0
-                        ? "bg-primary"
+                        ? "bg-amber-100 text-amber-800"
                         : index === 1
-                          ? "bg-secondary"
+                          ? "bg-rose-100 text-rose-800"
                           : index === 2
-                            ? "bg-accent"
-                            : "bg-muted"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-slate-100 text-slate-700"
                     }`}
                   >
                     {index + 1}
                   </div>
                   <div className="flex-1">
-                    <p className="font-bold">{country.name}</p>
-                    <p className="text-sm text-muted-foreground font-mono">
+                    <p className="font-semibold text-slate-900">{country.name}</p>
+                    <p className="text-sm text-slate-500">
                       {country.code}
                     </p>
                   </div>
-                  <div className="text-2xl font-bold">{country.count}</div>
+                  <div className="text-2xl font-semibold text-slate-900">
+                    {country.count}
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Cuisine Breakdown */}
-        <div className="border-4 border-black bg-card p-6 shadow-[4px_4px_0px_0px_#000]">
-          <h2 className="text-xl font-bold uppercase mb-6 flex items-center gap-2">
-            <Utensils className="w-5 h-5 text-accent" />
+        <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+            <Utensils className="w-5 h-5 text-emerald-600" />
             Favorite Cuisines
           </h2>
           {stats.cuisineBreakdown.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">
+            <p className="text-slate-600 text-center py-8">
               Add cuisine tags to your restaurants to see your preferences!
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="mt-5 space-y-3">
               {stats.cuisineBreakdown.map((cuisine, index) => {
                 const maxCount = stats.cuisineBreakdown[0]?.count || 1;
                 const percentage = (cuisine.count / maxCount) * 100;
 
                 return (
                   <div key={cuisine.cuisine} className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold uppercase text-sm">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-slate-900">
                         {cuisine.cuisine}
                       </span>
-                      <span className="font-mono text-sm">{cuisine.count}</span>
+                      <span className="text-slate-600">{cuisine.count}</span>
                     </div>
-                    <div className="h-4 bg-muted border-2 border-black overflow-hidden">
+                    <div className="h-2.5 rounded-full bg-slate-200 overflow-hidden">
                       <div
-                        className={`h-full transition-all duration-500 ${
+                        className={`h-full rounded-full transition-all duration-500 ${
                           index === 0
-                            ? "bg-primary"
+                            ? "bg-amber-500"
                             : index === 1
-                              ? "bg-secondary"
+                              ? "bg-rose-400"
                               : index === 2
-                                ? "bg-accent"
-                                : "bg-chart-4"
+                                ? "bg-emerald-400"
+                                : "bg-slate-400"
                         }`}
                         style={{ width: `${percentage}%` }}
                       />
@@ -199,49 +206,50 @@ export function StatsContent({ stats, countryVisits }: StatsContentProps) {
         </div>
       </div>
 
-      {/* Recent Visits */}
-      <div className="border-4 border-black bg-card p-6 shadow-[4px_4px_0px_0px_#000]">
-        <h2 className="text-xl font-bold uppercase mb-6 flex items-center gap-2">
-          <Star className="w-5 h-5 text-secondary" />
+      <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+          <Star className="w-5 h-5 text-amber-600" />
           Recent Visits
         </h2>
         {stats.recentVisits.length === 0 ? (
-          <div className="text-center py-8">
-            <Utensils className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No restaurants logged yet</p>
+          <div className="text-center py-10">
+            <Utensils className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <p className="text-slate-600">No restaurants logged yet</p>
             <Link
               href="/dashboard"
-              className="inline-block mt-4 px-6 py-3 border-4 border-black bg-primary text-black font-bold uppercase shadow-[3px_3px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_#000] transition-all"
+              className="inline-flex items-center justify-center mt-5 rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
             >
               Start Exploring
             </Link>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {stats.recentVisits.map((restaurant) => (
               <Link
                 key={restaurant.id}
                 href={`/dashboard/restaurant/${restaurant.id}`}
-                className="block p-4 border-4 border-black bg-background shadow-[3px_3px_0px_0px_#000] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_#000] transition-all"
+                className="block rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-0.5 bg-primary border-2 border-black text-black text-xs font-bold">
+                  <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
                     {restaurant.countryCode}
                   </span>
                   {restaurant.rating && (
-                    <span className="flex items-center gap-1 text-sm">
-                      <Star className="w-4 h-4 text-secondary fill-current" />
+                    <span className="flex items-center gap-1 text-sm text-slate-700">
+                      <Star className="w-4 h-4 text-amber-500 fill-current" />
                       {restaurant.rating}
                     </span>
                   )}
                 </div>
-                <h3 className="font-bold truncate">{restaurant.name}</h3>
+                <h3 className="font-semibold text-slate-900 truncate">
+                  {restaurant.name}
+                </h3>
                 {restaurant.city && (
-                  <p className="text-sm text-muted-foreground font-mono truncate">
+                  <p className="text-sm text-slate-500 truncate">
                     {restaurant.city}
                   </p>
                 )}
-                <div className="flex items-center gap-1 mt-2 text-xs text-accent font-mono">
+                <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">
                   <Lock className="w-3 h-3" />
                   <span>Private</span>
                 </div>
@@ -258,29 +266,38 @@ function StatCard({
   icon,
   value,
   label,
-  color,
+  tone,
   subtext,
   isText,
 }: {
   icon: React.ReactNode;
   value: number | string;
   label: string;
-  color: string;
+  tone: string;
   subtext?: string;
   isText?: boolean;
 }) {
   return (
     <div
-      className={`${color} border-4 border-black p-6 shadow-[4px_4px_0px_0px_#000] text-black`}
+      className="rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm"
     >
-      <div className="flex items-center gap-2 mb-3">{icon}</div>
-      <div className={`${isText ? "text-xl" : "text-4xl"} font-bold`}>
+      <div className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${tone}`}>
+        {icon}
+      </div>
+      <div
+        className={`${isText ? "text-xl" : "text-3xl"} mt-4 font-semibold text-slate-950`}
+      >
         {value}
         {subtext && (
-          <span className="text-lg font-normal opacity-70"> {subtext}</span>
+          <span className="text-base font-normal text-slate-500">
+            {" "}
+            {subtext}
+          </span>
         )}
       </div>
-      <div className="text-sm font-mono uppercase opacity-80">{label}</div>
+      <div className="mt-1 text-xs uppercase tracking-[0.3em] text-slate-500">
+        {label}
+      </div>
     </div>
   );
 }
