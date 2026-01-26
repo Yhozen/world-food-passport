@@ -1,7 +1,7 @@
 import { DM_Sans } from "next/font/google";
-import ClickableWorldMapPreview from "@/components/map";
+import worldCountries from "world-countries";
+import { DashboardMap } from "@/components/dashboard/dashboard-map";
 import { getCountryVisits } from "@/lib/actions";
-import { countries } from "@/lib/countries";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -10,10 +10,33 @@ const dmSans = DM_Sans({
 
 export default async function DashboardMapPage() {
   const countryVisits = await getCountryVisits();
-  const byIso2 = new Map(countries.map((country) => [country.code, country.cca3]));
-  const visitedIso3 = Array.from(countryVisits.keys())
-    .map((code) => byIso2.get(code))
-    .filter((code): code is string => Boolean(code));
+  const countriesData = worldCountries as Array<{
+    cca2?: string;
+    cca3: string;
+    name: { common: string };
+  }>;
+  const nameByIso3 = Object.fromEntries(
+    countriesData.map((country) => [country.cca3, country.name.common]),
+  ) as Record<string, string>;
+  const iso2ByIso3 = Object.fromEntries(
+    countriesData
+      .filter((country) => country.cca2)
+      .map((country) => [country.cca3, country.cca2]),
+  ) as Record<string, string>;
+  const iso3ByIso2 = Object.fromEntries(
+    countriesData
+      .filter((country) => country.cca2)
+      .map((country) => [country.cca2, country.cca3]),
+  ) as Record<string, string>;
+  const visitCounts = Object.fromEntries(
+    Array.from(countryVisits.entries())
+      .map(([iso2, count]) => {
+        const iso3 = iso3ByIso2[iso2];
+        return iso3 ? [iso3, count] : null;
+      })
+      .filter((entry): entry is [string, number] => Boolean(entry)),
+  );
+  const visitedIso3 = Object.keys(visitCounts);
 
   return (
     <div
@@ -33,11 +56,12 @@ export default async function DashboardMapPage() {
           </p>
         </section>
 
-        <section className="mt-8 rounded-3xl border border-slate-200 bg-white/80 p-4 shadow-sm md:p-6">
-          <ClickableWorldMapPreview
+        <section className="mt-8">
+          <DashboardMap
             visitedIso3={visitedIso3}
-            projectionScale={190}
-            className="w-full"
+            visitCounts={visitCounts}
+            nameByIso3={nameByIso3}
+            iso2ByIso3={iso2ByIso3}
           />
         </section>
       </div>

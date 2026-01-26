@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { DM_Sans } from "next/font/google";
-import ClickableWorldMapPreview from "../../components/map";
+import ClickableWorldMapPreview from "@/components/map";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -88,11 +88,11 @@ export default function MapPage() {
             <span className="font-medium text-slate-900">Map view</span>
             <div className="flex flex-wrap items-center gap-4">
               <span className="inline-flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#1F2A44]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#E2C08D]" />
                 Visited
               </span>
               <span className="inline-flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-slate-200" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#F1EFE8]" />
                 Not yet
               </span>
             </div>

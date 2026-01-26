@@ -34,23 +34,18 @@ export function CountryDrawer({
       />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white/95 backdrop-blur border-l border-slate-200 z-50 overflow-auto">
+      <div className="fixed inset-x-0 bottom-0 z-50 max-h-[85vh] w-full overflow-auto rounded-t-3xl border-t border-slate-200 bg-white/95 backdrop-blur md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:w-[24rem] md:max-w-none md:rounded-none md:border-l md:border-t-0">
         {/* Header */}
         <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-6 py-5">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100 text-sm font-semibold text-amber-900">
-                {country.code}
-              </span>
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900">
-                  {country.name}
-                </h2>
-                <p className="text-sm text-slate-500">
-                  {restaurants.length} restaurant
-                  {restaurants.length !== 1 ? "s" : ""}
-                </p>
-              </div>
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">
+                {country.name}
+              </h2>
+              <p className="text-sm text-slate-500">
+                {restaurants.length} restaurant
+                {restaurants.length !== 1 ? "s" : ""}
+              </p>
             </div>
             <button
               type="button"

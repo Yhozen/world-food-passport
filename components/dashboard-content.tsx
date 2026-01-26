@@ -1,42 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { WorldMap } from "./world-map";
 import { CountryDrawer } from "./country-drawer";
 import { AddRestaurantModal } from "./add-restaurant-modal";
-import { getRestaurantsByCountry } from "@/lib/actions";
-import type { Restaurant } from "@/lib/types";
+import { useCountrySelection } from "./dashboard/use-country-selection";
 
 interface DashboardContentProps {
   countryVisits: Map<string, number>;
 }
 
 export function DashboardContent({ countryVisits }: DashboardContentProps) {
-  const [selectedCountry, setSelectedCountry] = useState<{
-    code: string;
-    name: string;
-  } | null>(null);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [loading, setLoading] = useState(false);
+  const {
+    selectedCountry,
+    restaurants,
+    isLoading,
+    openCountry,
+    closeCountry,
+    refreshRestaurants,
+  } = useCountrySelection();
   const [showAddModal, setShowAddModal] = useState(false);
 
-  useEffect(() => {
-    if (selectedCountry) {
-      setLoading(true);
-      getRestaurantsByCountry(selectedCountry.code).then((data) => {
-        setRestaurants(data);
-        setLoading(false);
-      });
-    }
-  }, [selectedCountry]);
-
   const handleCountryClick = (code: string, name: string) => {
-    setSelectedCountry({ code, name });
+    openCountry(code, name);
   };
 
   const handleCloseDrawer = () => {
-    setSelectedCountry(null);
-    setRestaurants([]);
+    closeCountry();
   };
 
   const handleAddRestaurant = () => {
@@ -45,10 +35,7 @@ export function DashboardContent({ countryVisits }: DashboardContentProps) {
 
   const handleRestaurantAdded = () => {
     setShowAddModal(false);
-    // Refresh restaurants
-    if (selectedCountry) {
-      getRestaurantsByCountry(selectedCountry.code).then(setRestaurants);
-    }
+    refreshRestaurants();
   };
 
   return (
@@ -59,13 +46,13 @@ export function DashboardContent({ countryVisits }: DashboardContentProps) {
       />
 
       {/* Country Drawer */}
-      <CountryDrawer
-        country={selectedCountry}
-        restaurants={restaurants}
-        loading={loading}
-        onClose={handleCloseDrawer}
-        onAddRestaurant={handleAddRestaurant}
-      />
+        <CountryDrawer
+          country={selectedCountry}
+          restaurants={restaurants}
+          loading={isLoading}
+          onClose={handleCloseDrawer}
+          onAddRestaurant={handleAddRestaurant}
+        />
 
       {selectedCountry && (
         <AddRestaurantModal
