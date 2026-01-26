@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { neonAuth } from "@neondatabase/auth/next/server";
+import { MapExample } from "./_components/map-example";
 
 const title = "Food Passport | Restaurant tracker for your food world";
 const description =
@@ -106,10 +107,10 @@ export default async function LandingPage() {
               Get Started
             </Link>
             <Link
-              href="/auth/sign-in"
+              href={user ? "/dashboard" : "/auth/sign-in"}
               className="rounded-full border border-slate-300 bg-white px-6 py-3 text-sm text-slate-900 transition hover:border-slate-400"
             >
-              Book a demo
+              {user ? "Jump into your map" : "Stamp my map"}
             </Link>
           </div>
         </section>
@@ -123,6 +124,19 @@ export default async function LandingPage() {
             at a glance. You can compete against your friends or follow their
             best recommendations when you need a sure thing.
           </p>
+          <div className="mx-auto mt-8 w-full max-w-4xl rounded-3xl border border-slate-200 bg-white/80 p-4 shadow-sm md:p-6">
+            <div className="flex flex-col gap-3 text-left">
+              <div className="flex items-center justify-between gap-3">
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+                  Example map
+                </span>
+                <span className="text-xs text-slate-500">Sample data only</span>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white/90 p-3 md:p-4">
+                <MapExample />
+              </div>
+            </div>
+          </div>
         </section>
 
         <section className="mt-14 w-full">
@@ -140,7 +154,7 @@ export default async function LandingPage() {
             <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-slate-900">
-                  Challenges and achievements
+                  Challenge and achievements
                 </h3>
                 <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
                   Coming soon
