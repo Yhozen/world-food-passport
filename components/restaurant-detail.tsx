@@ -76,206 +76,191 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      {/* Back Button */}
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 font-mono text-sm uppercase"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Map
-      </Link>
+    <div className="min-h-screen bg-[radial-gradient(70%_80%_at_50%_0%,#fff7e6_0%,#f4f1ea_55%,#efe8dc_100%)] text-slate-950">
+      <div className="mx-auto w-full max-w-4xl px-6 py-10">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Map
+        </Link>
 
-      {/* Header Card */}
-      <div className="border-4 border-black bg-card p-6 shadow-[6px_6px_0px_0px_#000] mb-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="px-3 py-1 bg-primary border-4 border-black text-black font-bold text-sm">
-                {restaurant.countryCode}
+        <div className="mt-6 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+                  {restaurant.countryCode}
+                </span>
+                <h1 className="text-2xl font-semibold text-slate-950 md:text-3xl">
+                  {restaurant.name}
+                </h1>
               </div>
-              <h1 className="text-3xl font-bold uppercase">
-                {restaurant.name}
-              </h1>
+
+              <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                {restaurant.city && (
+                  <span className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    {restaurant.city}, {restaurant.countryName}
+                  </span>
+                )}
+                {restaurant.visitDate && (
+                  <span className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    {new Date(restaurant.visitDate).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
-              {restaurant.city && (
-                <span className="flex items-center gap-1 font-mono">
-                  <MapPin className="w-4 h-4" />
-                  {restaurant.city}, {restaurant.countryName}
-                </span>
-              )}
-              {restaurant.visitDate && (
-                <span className="flex items-center gap-1 font-mono">
-                  <Calendar className="w-4 h-4" />
-                  {new Date(restaurant.visitDate).toLocaleDateString()}
-                </span>
-              )}
-            </div>
+            {restaurant.rating && (
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-900 shadow-sm">
+                <Star className="h-5 w-5 text-amber-500" />
+                <span className="text-lg font-semibold">{restaurant.rating}</span>
+              </div>
+            )}
           </div>
 
-          {restaurant.rating && (
-            <div className="flex items-center gap-2 px-4 py-2 bg-secondary border-4 border-black shadow-[3px_3px_0px_0px_#000]">
-              <Star className="w-6 h-6 text-black fill-current" />
-              <span className="text-2xl font-bold text-black">
-                {restaurant.rating}
-              </span>
+          {restaurant.cuisineTags && restaurant.cuisineTags.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {restaurant.cuisineTags.map((tag: string) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600"
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Cuisine Tags */}
-        {restaurant.cuisineTags && restaurant.cuisineTags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-4">
-            {restaurant.cuisineTags.map((tag: string) => (
-              <span
-                key={tag}
-                className="px-3 py-1 bg-accent/20 border-2 border-accent/50 text-sm font-mono uppercase text-accent"
-              >
-                {tag}
-              </span>
-            ))}
+        <div className="mt-6 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold text-slate-900">Photos</h2>
+            <button
+              type="button"
+              onClick={() => setShowPhotoUpload(true)}
+              className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+            >
+              Add Photo
+            </button>
           </div>
-        )}
-      </div>
 
-      {/* Photos Section */}
-      <div className="border-4 border-black bg-card p-6 shadow-[6px_6px_0px_0px_#000] mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold uppercase flex items-center gap-2">
-            <Camera className="w-5 h-5 text-secondary" />
-            Photos
-          </h2>
+          {photos.length === 0 ? (
+            <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-white/60 py-12 text-center">
+              <Camera className="mx-auto h-10 w-10 text-slate-400" />
+              <p className="mt-3 text-sm text-slate-600">
+                No photos yet. Add your first memory.
+              </p>
+            </div>
+          ) : (
+            <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-3">
+              {photos.map((photo) => (
+                <button
+                  key={photo.id}
+                  type="button"
+                  onClick={() => setSelectedPhoto(photo)}
+                  className="relative aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-transform hover:scale-[1.01]"
+                >
+                  <Image
+                    src={photo.storageUrl || "/placeholder.svg"}
+                    alt={photo.caption || "Restaurant photo"}
+                    fill
+                    className="object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6 rounded-3xl border border-amber-200 bg-amber-50/70 p-6 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Lock className="h-4 w-4 text-amber-700" />
+              <h2 className="text-lg font-semibold text-amber-900">
+                Private Review
+              </h2>
+            </div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+              <Lock className="h-3 w-3" />
+              Only you can see this
+            </span>
+          </div>
+
+          {isEditingReview ? (
+            <div className="mt-4 space-y-4">
+              <textarea
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                rows={6}
+                className="w-full rounded-2xl border border-amber-200 bg-white px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-200 resize-none"
+                placeholder="Write your honest thoughts about this restaurant..."
+              />
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingReview(false)}
+                  className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition hover:border-slate-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveReview}
+                  disabled={isPending}
+                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+                >
+                  {isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  Save review
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4">
+              {review ? (
+                <div className="prose max-w-none text-slate-700">
+                  <p className="whitespace-pre-wrap">{review}</p>
+                </div>
+              ) : (
+                <p className="text-sm text-slate-600 italic">
+                  No review written yet.
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsEditingReview(true)}
+                className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-transparent px-4 py-2 text-sm text-amber-800 transition hover:bg-amber-100"
+              >
+                <Edit3 className="h-4 w-4" />
+                {review ? "Edit review" : "Write review"}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6 rounded-3xl border border-rose-200 bg-rose-50/70 p-6">
+          <h2 className="text-lg font-semibold text-rose-700">Danger zone</h2>
+          <p className="mt-2 text-sm text-rose-700/80">
+            Deleting this restaurant will permanently remove all photos and
+            reviews.
+          </p>
           <button
             type="button"
-            onClick={() => setShowPhotoUpload(true)}
-            className="px-4 py-2 border-4 border-black bg-secondary text-black font-bold uppercase text-sm shadow-[3px_3px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_#000] transition-all"
+            onClick={() => setShowDeleteConfirm(true)}
+            className="mt-4 inline-flex items-center gap-2 rounded-full border border-rose-300 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
           >
-            Add Photo
+            <Trash2 className="h-4 w-4" />
+            Delete restaurant
           </button>
         </div>
 
-        {photos.length === 0 ? (
-          <div className="text-center py-12 border-4 border-dashed border-muted">
-            <Camera className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">
-              No photos yet. Add your first memory!
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {photos.map((photo) => (
-              <button
-                key={photo.id}
-                type="button"
-                onClick={() => setSelectedPhoto(photo)}
-                className="aspect-square relative border-4 border-black overflow-hidden hover:scale-[1.02] transition-transform"
-              >
-                <Image
-                  src={photo.storageUrl || "/placeholder.svg"}
-                  alt={photo.caption || "Restaurant photo"}
-                  fill
-                  className="object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Private Review Section */}
-      <div className="border-4 border-accent/50 bg-accent/10 p-6 shadow-[6px_6px_0px_0px_rgba(0,255,255,0.3)] mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Lock className="w-5 h-5 text-accent" />
-            <h2 className="text-xl font-bold uppercase text-accent">
-              Private Review
-            </h2>
-          </div>
-          <div className="flex items-center gap-1 px-3 py-1 bg-accent text-black text-xs font-mono uppercase">
-            <Lock className="w-3 h-3" />
-            Only You Can See This
-          </div>
-        </div>
-
-        {isEditingReview ? (
-          <div className="space-y-4">
-            <textarea
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
-              rows={6}
-              className="w-full px-4 py-3 border-4 border-accent bg-background text-foreground font-mono focus:outline-none focus:ring-4 focus:ring-accent/50 resize-none"
-              placeholder="Write your honest thoughts about this restaurant..."
-            />
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => setIsEditingReview(false)}
-                className="px-4 py-2 border-4 border-black bg-background text-foreground font-bold uppercase text-sm hover:bg-muted transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveReview}
-                disabled={isPending}
-                className="flex items-center gap-2 px-4 py-2 border-4 border-black bg-accent text-black font-bold uppercase text-sm shadow-[3px_3px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_#000] transition-all disabled:opacity-50"
-              >
-                {isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
-                Save Review
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div>
-            {review ? (
-              <div className="prose prose-invert max-w-none">
-                <p className="text-foreground whitespace-pre-wrap font-mono">
-                  {review}
-                </p>
-              </div>
-            ) : (
-              <p className="text-muted-foreground italic">
-                No review written yet.
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={() => setIsEditingReview(true)}
-              className="mt-4 flex items-center gap-2 px-4 py-2 border-4 border-accent bg-transparent text-accent font-bold uppercase text-sm hover:bg-accent hover:text-black transition-colors"
-            >
-              <Edit3 className="w-4 h-4" />
-              {review ? "Edit Review" : "Write Review"}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Danger Zone */}
-      <div className="border-4 border-destructive/50 bg-destructive/10 p-6">
-        <h2 className="text-xl font-bold uppercase text-destructive mb-4">
-          Danger Zone
-        </h2>
-        <p className="text-muted-foreground mb-4">
-          Deleting this restaurant will permanently remove all photos and
-          reviews.
-        </p>
-        <button
-          type="button"
-          onClick={() => setShowDeleteConfirm(true)}
-          className="flex items-center gap-2 px-4 py-2 border-4 border-destructive bg-transparent text-destructive font-bold uppercase text-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
-          Delete Restaurant
-        </button>
-      </div>
-
-      {/* Photo Upload Modal */}
       {showPhotoUpload && (
         <PhotoUpload
           restaurantId={restaurant.id}
@@ -284,7 +269,6 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
         />
       )}
 
-      {/* Photo Lightbox */}
       {selectedPhoto && (
         <PhotoLightbox
           photo={selectedPhoto}
@@ -294,7 +278,6 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
         />
       )}
 
-      {/* Delete Confirmation */}
       {showDeleteConfirm && (
         <DeleteConfirmation
           name={restaurant.name}
@@ -303,6 +286,7 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
           isPending={isPending}
         />
       )}
+      </div>
     </div>
   );
 }
@@ -321,7 +305,7 @@ function PhotoLightbox({
   return (
     <>
       <div
-        className="fixed inset-0 bg-black/90 z-50"
+        className="fixed inset-0 bg-black/80 z-50"
         onClick={onClose}
         onKeyDown={(e) => e.key === "Escape" && onClose()}
         role="button"
@@ -335,27 +319,27 @@ function PhotoLightbox({
             alt={photo.caption || "Restaurant photo"}
             width={1200}
             height={800}
-            className="max-w-full max-h-[80vh] object-contain border-4 border-black"
+            className="max-w-full max-h-[80vh] object-contain rounded-2xl border border-slate-200 bg-white shadow-lg"
           />
           <div className="absolute top-4 right-4 flex items-center gap-2">
             <button
               type="button"
               onClick={onDelete}
               disabled={isPending}
-              className="w-10 h-10 border-4 border-black bg-destructive text-black flex items-center justify-center hover:opacity-80 transition-opacity disabled:opacity-50"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-rose-300 bg-white text-rose-600 transition hover:bg-rose-50 disabled:opacity-50"
             >
               {isPending ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <Trash2 className="w-5 h-5" />
+                <Trash2 className="h-5 w-5" />
               )}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="w-10 h-10 border-4 border-black bg-white text-black flex items-center justify-center hover:opacity-80 transition-opacity"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50"
             >
-              <X className="w-5 h-5" />
+              <X className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -378,24 +362,26 @@ function DeleteConfirmation({
   return (
     <>
       <div
-        className="fixed inset-0 bg-black/70 z-50"
+        className="fixed inset-0 bg-black/60 z-50"
         onClick={onCancel}
         onKeyDown={(e) => e.key === "Escape" && onCancel()}
         role="button"
         tabIndex={0}
         aria-label="Close confirmation"
       />
-      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-card border-4 border-black shadow-[8px_8px_0px_0px_#000] z-50 p-6">
-        <h3 className="text-xl font-bold uppercase mb-4">Delete Restaurant?</h3>
-        <p className="text-muted-foreground mb-6">
+      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-lg">
+        <h3 className="text-lg font-semibold text-slate-900">
+          Delete restaurant?
+        </h3>
+        <p className="mt-2 text-sm text-slate-600">
           Are you sure you want to delete <strong>{name}</strong>? This action
           cannot be undone.
         </p>
-        <div className="flex items-center gap-4">
+        <div className="mt-6 flex items-center gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 px-4 py-3 border-4 border-black bg-background text-foreground font-bold uppercase hover:bg-muted transition-colors"
+            className="flex-1 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition hover:border-slate-400"
           >
             Cancel
           </button>
@@ -403,12 +389,12 @@ function DeleteConfirmation({
             type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-4 border-black bg-destructive text-destructive-foreground font-bold uppercase shadow-[3px_3px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_#000] transition-all disabled:opacity-50"
+            className="flex flex-1 items-center justify-center gap-2 rounded-full border border-rose-300 bg-rose-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-600 disabled:opacity-50"
           >
             {isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="h-4 w-4" />
             )}
             Delete
           </button>
