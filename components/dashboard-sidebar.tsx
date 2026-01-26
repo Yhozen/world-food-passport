@@ -29,69 +29,69 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
   ];
 
   return (
-    <aside className="w-64 bg-card border-r-4 border-black flex flex-col">
-      {/* Logo */}
-      <div className="p-6 border-b-4 border-black">
+    <aside className="w-64 border-r border-slate-200 bg-white/80 backdrop-blur flex flex-col text-slate-700">
+      <div className="px-6 pt-8 pb-6">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary border-4 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000]">
-            <Utensils className="w-5 h-5 text-black" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <Utensils className="h-5 w-5 text-amber-600" />
           </div>
-          <span className="font-bold uppercase tracking-tight">
+          <span className="text-sm font-semibold text-slate-900">
             Food Passport
           </span>
         </Link>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 border-4 border-black font-bold uppercase text-sm transition-all ${
-                isActive
-                  ? "bg-primary text-black shadow-[3px_3px_0px_0px_#000]"
-                  : "bg-background text-foreground hover:bg-muted"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              {item.label}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-4">
+        <div className="space-y-1">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 rounded-full px-4 py-2 text-sm transition ${
+                  isActive
+                    ? "bg-amber-100 text-amber-900"
+                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
-      {/* Privacy Badge */}
       <div className="px-4 pb-4">
-        <div className="p-3 bg-accent/20 border-4 border-accent/50 flex items-center gap-2">
-          <Lock className="w-4 h-4 text-accent" />
-          <span className="text-xs font-mono uppercase text-accent">
-            Private Mode
-          </span>
+        <div className="rounded-2xl border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-800">
+          <div className="flex items-center gap-2">
+            <Lock className="h-3.5 w-3.5" />
+            <span className="font-medium">Private mode</span>
+          </div>
         </div>
       </div>
 
-      {/* User section */}
-      <div className="p-4 border-t-4 border-black">
-        <div className="mb-4">
-          <p className="font-bold truncate">{user.name || "Food Lover"}</p>
-          <p className="text-xs text-muted-foreground truncate font-mono">
-            {user.email}
-          </p>
-        </div>
+      <div className="px-4 pb-6">
+        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
+          <div className="mb-4">
+            <p className="text-sm font-semibold text-slate-900 truncate">
+              {user.name || "Food Lover"}
+            </p>
+            <p className="text-xs text-slate-500 truncate">{user.email}</p>
+          </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            void authClient.signOut();
-          }}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 border-4 border-black bg-background text-foreground font-bold uppercase text-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              void authClient.signOut();
+            }}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 transition hover:border-slate-400"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
+        </div>
       </div>
     </aside>
   );
