@@ -1,14 +1,5 @@
-import React from "react";
 import Link from "next/link";
-import { DM_Sans } from "next/font/google";
-import { neonAuth } from "@neondatabase/auth/next/server";
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-});
 
 const title = "Food Passport | Restaurant tracker for your food world";
 const description =
@@ -76,15 +67,10 @@ const faqItems: FaqItem[] = [
   },
 ];
 
-export default async function LandingPage() {
-  const { session } = await neonAuth();
-  if (session) {
-    redirect("/dashboard");
-  }
-
+export default function LandingPage() {
   return (
     <main
-      className={`${dmSans.className} min-h-screen bg-[radial-gradient(70%_80%_at_50%_0%,#fff7e6_0%,#f4f1ea_55%,#efe8dc_100%)] text-slate-950`}
+      className={`min-h-screen bg-[radial-gradient(70%_80%_at_50%_0%,#fff7e6_0%,#f4f1ea_55%,#efe8dc_100%)] text-slate-950`}
     >
       <div className="mx-auto flex min-h-screen max-w-4xl flex-col px-6 pb-16 pt-8">
         <nav className="flex items-center justify-between text-sm text-slate-600">
@@ -201,9 +187,7 @@ export default async function LandingPage() {
 
         <section className="mt-16 w-full">
           <div className="text-center">
-            <h2 className="text-2xl font-semibold text-slate-900">
-              FAQ
-            </h2>
+            <h2 className="text-2xl font-semibold text-slate-900">FAQ</h2>
             <p className="mt-3 text-base text-slate-600 md:text-lg">
               Short answers to the most common questions.
             </p>
