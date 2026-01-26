@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { neonAuth } from "@neondatabase/auth/next/server";
 
 const title = "Food Passport | Restaurant tracker for your food world";
 const description =
@@ -67,7 +68,9 @@ const faqItems: FaqItem[] = [
   },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const { user } = await neonAuth();
+
   return (
     <main
       className={`min-h-screen bg-[radial-gradient(70%_80%_at_50%_0%,#fff7e6_0%,#f4f1ea_55%,#efe8dc_100%)] text-slate-950`}
@@ -77,9 +80,15 @@ export default function LandingPage() {
           <Link href="/" className="font-medium text-slate-950">
             Food Passport
           </Link>
-          <Link href="/auth/sign-in" className="hover:text-slate-900">
-            Sign In
-          </Link>
+          {user ? (
+            <Link href="/dashboard" className="hover:text-slate-900">
+              Go to dashboard
+            </Link>
+          ) : (
+            <Link href="/auth/sign-in" className="hover:text-slate-900">
+              Sign In
+            </Link>
+          )}
         </nav>
 
         <section className="mt-20 flex flex-1 flex-col items-center justify-center text-center">
