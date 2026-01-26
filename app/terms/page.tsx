@@ -1,9 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
-const title = "Terms of Service | Food Passport";
+const title = "Terms of Service | World Food Passport";
 const description =
-  "Review the terms that govern your use of Food Passport.";
+  "Review the terms that govern your use of World Food Passport.";
 
 export const metadata: Metadata = {
   title,
@@ -20,7 +20,7 @@ const sections: Section[] = [
   {
     title: "Agreement",
     description:
-      "By using Food Passport, you agree to these terms. If you do not agree, please do not use the service.",
+      "By using World Food Passport, you agree to these terms. If you do not agree, please do not use the service.",
   },
   {
     title: "Accounts",
@@ -30,12 +30,12 @@ const sections: Section[] = [
   {
     title: "Your content",
     description:
-      "You own the content you add. By posting it, you grant Food Passport a limited license to host, store, and display it so we can operate the service.",
+      "You own the content you add. By posting it, you grant World Food Passport a limited license to host, store, and display it so we can operate the service.",
   },
   {
     title: "Acceptable use",
     description:
-      "Please use Food Passport respectfully and lawfully.",
+      "Please use World Food Passport respectfully and lawfully.",
     items: [
       "Do not misuse the service or attempt to access it in unauthorized ways.",
       "Do not upload content that is illegal, harmful, or infringes on the rights of others.",
@@ -50,7 +50,7 @@ const sections: Section[] = [
   {
     title: "Termination",
     description:
-      "You may stop using Food Passport at any time. We may suspend or terminate access if these terms are violated or to protect the service and its users.",
+      "You may stop using World Food Passport at any time. We may suspend or terminate access if these terms are violated or to protect the service and its users.",
   },
   {
     title: "Disclaimers",
@@ -60,12 +60,12 @@ const sections: Section[] = [
   {
     title: "Limitation of liability",
     description:
-      "To the extent permitted by law, Food Passport will not be liable for indirect, incidental, or consequential damages resulting from your use of the service.",
+      "To the extent permitted by law, World Food Passport will not be liable for indirect, incidental, or consequential damages resulting from your use of the service.",
   },
   {
     title: "Governing law",
     description:
-      "These terms are governed by the laws of the jurisdiction where Food Passport is established, without regard to conflict of law rules.",
+      "These terms are governed by the laws of the jurisdiction where World Food Passport is established, without regard to conflict of law rules.",
   },
   {
     title: "Contact",
@@ -80,7 +80,7 @@ export default function TermsPage() {
       <div className="mx-auto flex min-h-screen max-w-4xl flex-col px-6 pb-16 pt-8">
         <nav className="flex items-center justify-between text-sm text-slate-600">
           <Link href="/" className="font-medium text-slate-950">
-            Food Passport
+            World Food Passport
           </Link>
           <Link href={{ pathname: "/privacy" }} className="hover:text-slate-900">
             Privacy
@@ -124,7 +124,7 @@ export default function TermsPage() {
 
         <footer className="mt-14 border-t border-slate-200 pt-6 text-sm text-slate-600">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <span>Food Passport</span>
+            <span>World Food Passport</span>
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href={{ pathname: "/privacy" }}

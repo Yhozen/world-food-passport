@@ -1,4 +1,4 @@
-# Food Passport - Neon Auth + Prisma Spec
+# World Food Passport - Neon Auth + Prisma Spec
 
 ## Current State Review
 
@@ -47,7 +47,7 @@
 3. **Data access refactor** (done)
    - `lib/actions.ts` rebuilt on Prisma + Neon Auth.
 4. **Blob upload path** (done)
-   - `uploadPhoto` uses `food-passport/{userId}/{restaurantId}/{timestamp}-{filename}`.
+   - `uploadPhoto` uses `world-food-passport/{userId}/{restaurantId}/{timestamp}-{filename}`.
 5. **Cleanup** (done)
    - Removed `lib/auth.ts`, `lib/db.ts`, `/sign-in`, `/sign-up`.
 6. **Remaining**

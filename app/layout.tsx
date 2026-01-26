@@ -11,8 +11,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Food Passport",
-  description: "Food Passport",
+  title: "World Food Passport",
+  description: "World Food Passport",
   icons: {
     icon: [
       {

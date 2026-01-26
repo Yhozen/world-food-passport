@@ -16,8 +16,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return (
     <NeonAuthUIProvider
       authClient={authClient}
-      navigate={router.push}
-      replace={router.replace}
+      navigate={router.push as any}
+      replace={router.replace as any}
       onSessionChange={() => router.refresh()}
       Link={Link}
     >

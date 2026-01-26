@@ -234,7 +234,7 @@ export async function uploadPhoto(formData: FormData) {
   }
 
   const blob = await put(
-    `food-passport/${user.id}/${restaurantId}/${Date.now()}-${file.name}`,
+    `world-food-passport/${user.id}/${restaurantId}/${Date.now()}-${file.name}`,
     file,
     {
       access: "public",

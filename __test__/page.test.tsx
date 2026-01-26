@@ -4,11 +4,11 @@ import Page from "@/app/page";
 
 test("Page", () => {
   render(<Page />);
-  // expect(screen.getByText("Food Passport")).toBeDefined();
+  // expect(screen.getByText("World Food Passport")).toBeDefined();
   expect(
     screen.getByRole("heading", {
       level: 1,
-      name: "Food Passport is the restaurant tracker for your food world.",
+      name: "World Food Passport is the restaurant tracker for your food world.",
     }),
   ).toBeDefined();
 });

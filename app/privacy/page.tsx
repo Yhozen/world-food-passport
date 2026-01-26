@@ -1,9 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
-const title = "Privacy Policy | Food Passport";
+const title = "Privacy Policy | World Food Passport";
 const description =
-  "Learn how Food Passport handles your information and protects your privacy.";
+  "Learn how World Food Passport handles your information and protects your privacy.";
 
 export const metadata: Metadata = {
   title,
@@ -20,7 +20,7 @@ const sections: Section[] = [
   {
     title: "Overview",
     description:
-      "Food Passport helps you log restaurant visits and keep track of your food world. This policy explains what we collect, how we use it, and the choices you have.",
+      "World Food Passport helps you log restaurant visits and keep track of your food world. This policy explains what we collect, how we use it, and the choices you have.",
   },
   {
     title: "Information we collect",
@@ -64,7 +64,7 @@ const sections: Section[] = [
   {
     title: "Changes",
     description:
-      "As Food Passport grows, we may update this policy. If we make material changes, we will update the date here and make the new policy available before it takes effect.",
+      "As World Food Passport grows, we may update this policy. If we make material changes, we will update the date here and make the new policy available before it takes effect.",
   },
   {
     title: "Contact",
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
       <div className="mx-auto flex min-h-screen max-w-4xl flex-col px-6 pb-16 pt-8">
         <nav className="flex items-center justify-between text-sm text-slate-600">
           <Link href="/" className="font-medium text-slate-950">
-            Food Passport
+            World Food Passport
           </Link>
           <Link href={{ pathname: "/terms" }} className="hover:text-slate-900">
             Terms
@@ -123,7 +123,7 @@ export default function PrivacyPage() {
 
         <footer className="mt-14 border-t border-slate-200 pt-6 text-sm text-slate-600">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <span>Food Passport</span>
+            <span>World Food Passport</span>
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href={{ pathname: "/terms" }}

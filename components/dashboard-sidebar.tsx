@@ -3,15 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
-import {
-  Globe,
-  BarChart3,
-  List,
-  Settings,
-  LogOut,
-  Utensils,
-  Lock,
-} from "lucide-react";
+import { Globe, BarChart3, LogOut, Utensils, Lock } from "lucide-react";
 interface DashboardSidebarProps {
   user: {
     name?: string | null;
@@ -19,14 +11,13 @@ interface DashboardSidebarProps {
   };
 }
 
+const navItems = [
+  { href: "/dashboard", icon: Globe, label: "World Map" },
+  { href: "/dashboard/stats", icon: BarChart3, label: "Stats" },
+] as const;
+
 export function DashboardSidebar({ user }: DashboardSidebarProps) {
   const pathname = usePathname();
-
-  const navItems = [
-    { href: "/dashboard", icon: Globe, label: "World Map" },
-    { href: "/dashboard/stats", icon: BarChart3, label: "Stats" },
-    { href: "/dashboard/all", icon: List, label: "All Visits" },
-  ];
 
   return (
     <aside className="w-64 border-r border-slate-200 bg-white/80 backdrop-blur flex flex-col text-slate-700">
@@ -36,7 +27,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
             <Utensils className="h-5 w-5 text-amber-600" />
           </div>
           <span className="text-sm font-semibold text-slate-900">
-            Food Passport
+            World Food Passport
           </span>
         </Link>
       </div>

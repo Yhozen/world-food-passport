@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { neonAuth } from "@neondatabase/auth/next/server";
 import { MapExample } from "./_components/map-example";
 
-const title = "Food Passport | Restaurant tracker for your food world";
+const title = "World Food Passport | Restaurant tracker for your food world";
 const description =
   "Log and share restaurant visits, see your food world by place, and compare notes with friends and their best recommendations.";
 
@@ -49,7 +49,7 @@ const challengeItems: ChallengeItem[] = [
 
 const faqItems: FaqItem[] = [
   {
-    question: "Is Food Passport a restaurant tracker?",
+    question: "Is World Food Passport a restaurant tracker?",
     answer:
       "Yes. It is built for logging restaurants and keeping a visual map of your visits by place.",
   },
@@ -79,7 +79,7 @@ export default async function LandingPage() {
       <div className="mx-auto flex min-h-screen max-w-4xl flex-col px-6 pb-16 pt-8">
         <nav className="flex items-center justify-between text-sm text-slate-600">
           <Link href="/" className="font-medium text-slate-950">
-            Food Passport
+            World Food Passport
           </Link>
           {user ? (
             <Link href="/dashboard" className="hover:text-slate-900">
@@ -94,7 +94,7 @@ export default async function LandingPage() {
 
         <section className="mt-20 flex flex-1 flex-col items-center justify-center text-center">
           <h1 className="text-4xl font-semibold leading-tight tracking-tight text-balance md:text-5xl">
-            Food Passport is the restaurant tracker for your food world.
+            World Food Passport is the restaurant tracker for your food world.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
             One place to log and share your visits around the food world.
@@ -120,7 +120,7 @@ export default async function LandingPage() {
             See your food world, by place.
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
-            Food Passport lets you visually see all the food you know, by place,
+            World Food Passport lets you visually see all the food you know, by place,
             at a glance. You can compete against your friends or follow their
             best recommendations when you need a sure thing.
           </p>
@@ -234,7 +234,7 @@ export default async function LandingPage() {
 
         <footer className="mt-16 border-t border-slate-200 pt-8 text-sm text-slate-600">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <span>Food Passport</span>
+            <span>World Food Passport</span>
             <div className="flex flex-wrap items-center gap-4">
               <Link href="/privacy" className="hover:text-slate-900">
                 Privacy
