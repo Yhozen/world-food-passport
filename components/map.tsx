@@ -11,7 +11,6 @@ import {
 export interface MapCountryPayload {
   id: string;
   name: string;
-  iso2?: string;
   iso3: string;
   visitCount: number;
   isVisited: boolean;
@@ -21,7 +20,6 @@ interface ClickableWorldMapPreviewProps {
   visitedIso3?: string[];
   visitCounts?: Map<string, number> | Record<string, number>;
   nameByIso3?: Record<string, string>;
-  iso2ByIso3?: Record<string, string>;
   geography?: string | object;
   projectionScale?: number;
   center?: [number, number];
@@ -94,7 +92,6 @@ export default function ClickableWorldMapPreview({
   visitedIso3 = [],
   visitCounts,
   nameByIso3,
-  iso2ByIso3,
   geography = GEO_URL,
   projectionScale = 160,
   center,
@@ -147,14 +144,12 @@ export default function ClickableWorldMapPreview({
     if (!iso3) return null;
 
     const name = nameByIso3?.[iso3] ?? getCountryName(props);
-    const iso2 = iso2ByIso3?.[iso3];
     const visitCount = getVisitCountValue(visitCounts, iso3);
     const isVisited = visitCount > 0 || visitedLookup.has(iso3);
 
     return {
       id: iso3,
       name,
-      iso2,
       iso3,
       visitCount,
       isVisited,

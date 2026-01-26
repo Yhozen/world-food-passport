@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { countries, getVisitLevel } from "@/lib/countries";
 
 interface WorldMapProps {
-  countryVisits: Map<string, number>;
+  countryVisits: Record<string, number>;
   onCountryClick: (countryCode: string, countryName: string) => void;
 }
 
@@ -60,7 +60,7 @@ export function WorldMap({ countryVisits, onCountryClick }: WorldMapProps) {
             </h3>
             <div className="grid grid-cols-4 gap-2">
               {countryList.map((country) => {
-                const visits = countryVisits.get(country.code) || 0;
+                const visits = countryVisits[country.code] ?? 0;
                 const level = getVisitLevel(visits);
 
                 return (

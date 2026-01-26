@@ -1,5 +1,6 @@
 import { DM_Sans } from "next/font/google";
 import { getCountryVisits, getUserStats } from "@/lib/actions";
+import { countries } from "@/lib/countries";
 import { DashboardContent } from "@/components/dashboard-content";
 
 const dmSans = DM_Sans({
@@ -12,6 +13,9 @@ export default async function DashboardPage() {
     getCountryVisits(),
     getUserStats(),
   ]);
+  const nameByIso3 = Object.fromEntries(
+    countries.map((country) => [country.code, country.name]),
+  );
 
   return (
     <div
@@ -59,7 +63,10 @@ export default async function DashboardPage() {
         </section>
 
         <section className="mt-8">
-          <DashboardContent countryVisits={countryVisits} />
+          <DashboardContent
+            countryVisits={countryVisits}
+            nameByIso3={nameByIso3}
+          />
         </section>
       </div>
     </div>

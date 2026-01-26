@@ -351,16 +351,18 @@ export async function getRestaurantWithDetails(id: string): Promise<{
   };
 }
 
-export async function getCountryVisits(): Promise<Map<string, number>> {
+export async function getCountryVisits(): Promise<Record<string, number>> {
   const user = await requireUser();
-  if (!user) return new Map();
+  if (!user) return {};
 
   const result = await prisma.countriesVisited.findMany({
     where: { userId: user.id },
     select: { countryCode: true, visitCount: true },
   });
 
-  return new Map(result.map((row) => [row.countryCode, row.visitCount]));
+  return Object.fromEntries(
+    result.map((row) => [row.countryCode, row.visitCount]),
+  );
 }
 
 export async function getUserStats(): Promise<{

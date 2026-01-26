@@ -71,7 +71,6 @@ test("emits country payload on click", () => {
     <ClickableWorldMapPreview
       visitCounts={{ USA: 2 }}
       nameByIso3={{ USA: "United States" }}
-      iso2ByIso3={{ USA: "US" }}
       onCountryClick={handleClick}
     />,
   );
@@ -85,12 +84,12 @@ test("emits country payload on click", () => {
   expect(handleClick).toHaveBeenCalledWith(
     expect.objectContaining({
       iso3: "USA",
-      iso2: "US",
       name: "United States",
       visitCount: 2,
       isVisited: true,
     }),
   );
+  expect(handleClick.mock.calls[0]?.[0]?.iso2).toBeUndefined();
 });
 
 test("filters geographies when filterGeo returns false", () => {

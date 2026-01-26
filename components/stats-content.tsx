@@ -23,7 +23,7 @@ interface StatsContentProps {
     cuisineBreakdown: { cuisine: string; count: number }[];
     recentVisits: Restaurant[];
   };
-  countryVisits: Map<string, number>;
+  countryVisits: Record<string, number>;
 }
 
 export function StatsContent({ stats, countryVisits }: StatsContentProps) {
@@ -54,7 +54,7 @@ export function StatsContent({ stats, countryVisits }: StatsContentProps) {
 
   const foodieLevel = getFoodieLevel();
 
-  const topCountries = Array.from(countryVisits.entries())
+  const topCountries = Object.entries(countryVisits)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([code, count]) => ({
