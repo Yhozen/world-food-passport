@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { countries, getVisitColor, getVisitLevel } from "@/lib/countries";
 import { MapPin } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { countries, getVisitLevel } from "@/lib/countries";
 
 interface WorldMapProps {
   countryVisits: Map<string, number>;
@@ -10,9 +10,6 @@ interface WorldMapProps {
 }
 
 export function WorldMap({ countryVisits, onCountryClick }: WorldMapProps) {
-  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
-
-  // Group countries by continent for a grid-based map layout
   const continents = {
     "North America": countries.filter((c) => c.continent === "North America"),
     "South America": countries.filter((c) => c.continent === "South America"),
@@ -65,42 +62,31 @@ export function WorldMap({ countryVisits, onCountryClick }: WorldMapProps) {
               {countryList.map((country) => {
                 const visits = countryVisits.get(country.code) || 0;
                 const level = getVisitLevel(visits);
-                const isHovered = hoveredCountry === country.code;
 
                 return (
-                  <button
-                    type="button"
-                    key={country.code}
-                    onClick={() => onCountryClick(country.code, country.name)}
-                    onMouseEnter={() => setHoveredCountry(country.code)}
-                    onMouseLeave={() => setHoveredCountry(null)}
-                    className={`
-                      aspect-square rounded-md border text-[10px] font-medium uppercase transition-all
-                      ${levelStyles[level]}
-                      ${isHovered ? "scale-[1.04] shadow-sm ring-2 ring-amber-200" : ""}
-                    `}
-                    title={`${country.name} - ${visits} restaurant${visits !== 1 ? "s" : ""}`}
-                  >
-                    {country.code}
-                  </button>
+                  <Tooltip key={country.code}>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onCountryClick(country.code, country.name)}
+                        className={
+                          `aspect-square rounded-md border text-[10px] font-medium uppercase transition-all ${levelStyles[level]} ` +
+                          "hover:scale-[1.04] hover:shadow-sm hover:ring-2 hover:ring-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+                        }
+                      >
+                        {country.code}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" sideOffset={6}>
+                      {country.name} · {visits} restaurant{visits !== 1 ? "s" : ""}
+                    </TooltipContent>
+                  </Tooltip>
                 );
               })}
             </div>
           </div>
         ))}
       </div>
-
-      {hoveredCountry && (
-        <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-2xl border border-slate-200 bg-white/90 px-5 py-3 text-sm text-slate-700 shadow-sm">
-          <p className="font-medium text-slate-900">
-            {countries.find((c) => c.code === hoveredCountry)?.name}
-          </p>
-          <p className="text-slate-600">
-            {countryVisits.get(hoveredCountry) || 0} restaurant
-            {(countryVisits.get(hoveredCountry) || 0) !== 1 ? "s" : ""} visited
-          </p>
-        </div>
-      )}
     </div>
   );
 }

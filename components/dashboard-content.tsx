@@ -67,10 +67,10 @@ export function DashboardContent({ countryVisits }: DashboardContentProps) {
         onAddRestaurant={handleAddRestaurant}
       />
 
-      {/* Add Restaurant Modal */}
-      {showAddModal && selectedCountry && (
+      {selectedCountry && (
         <AddRestaurantModal
           country={selectedCountry}
+          isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
           onSuccess={handleRestaurantAdded}
         />

@@ -1,17 +1,26 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { X, Star, Lock, Loader2 } from "lucide-react";
+import { Loader2, Lock, Star } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { createRestaurant } from "@/lib/actions";
 
 interface AddRestaurantModalProps {
   country: { code: string; name: string };
+  isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
 
 export function AddRestaurantModal({
   country,
+  isOpen,
   onClose,
   onSuccess,
 }: AddRestaurantModalProps) {
@@ -34,72 +43,49 @@ export function AddRestaurantModal({
   }
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/70 z-50"
-        onClick={onClose}
-        onKeyDown={(e) => e.key === "Escape" && onClose()}
-        role="button"
-        tabIndex={0}
-        aria-label="Close modal"
-      />
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-200 bg-white/95 p-0 shadow-lg sm:max-w-xl">
+        <DialogHeader className="border-b border-slate-200 bg-white/80 px-6 py-5">
+          <DialogTitle className="text-xl font-semibold text-slate-900">
+            Add restaurant
+          </DialogTitle>
+          <DialogDescription className="text-sm text-slate-600">
+            {country.name}
+          </DialogDescription>
+        </DialogHeader>
 
-      {/* Modal */}
-      <div className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg md:max-h-[90vh] bg-card border-4 border-black shadow-[8px_8px_0px_0px_#000] z-50 overflow-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-card border-b-4 border-black p-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold uppercase">Add Restaurant</h2>
-            <p className="text-sm text-muted-foreground font-mono">
-              {country.name}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-10 h-10 border-4 border-black bg-background flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Form */}
-        <form action={handleSubmit} className="p-6 space-y-6">
-          {/* Hidden fields */}
+        <form action={handleSubmit} className="space-y-6 px-6 py-6">
           <input type="hidden" name="country_code" value={country.code} />
           <input type="hidden" name="country_name" value={country.name} />
           <input type="hidden" name="rating" value={rating} />
 
           {error && (
-            <div className="p-4 border-4 border-black bg-destructive text-destructive-foreground font-bold">
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {error}
             </div>
           )}
 
-          {/* Restaurant Name */}
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-bold uppercase mb-2"
+              className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
             >
-              Restaurant Name *
+              Restaurant name *
             </label>
             <input
               type="text"
               id="name"
               name="name"
               required
-              className="w-full px-4 py-3 border-4 border-black bg-background text-foreground font-mono focus:outline-none focus:ring-4 focus:ring-primary/50"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
               placeholder="e.g., Sushi Jiro"
             />
           </div>
 
-          {/* City */}
           <div>
             <label
               htmlFor="city"
-              className="block text-sm font-bold uppercase mb-2"
+              className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
             >
               City
             </label>
@@ -107,53 +93,50 @@ export function AddRestaurantModal({
               type="text"
               id="city"
               name="city"
-              className="w-full px-4 py-3 border-4 border-black bg-background text-foreground font-mono focus:outline-none focus:ring-4 focus:ring-primary/50"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
               placeholder="e.g., Tokyo"
             />
           </div>
 
-          {/* Visit Date */}
           <div>
             <label
               htmlFor="visit_date"
-              className="block text-sm font-bold uppercase mb-2"
+              className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
             >
-              Visit Date
+              Visit date
             </label>
             <input
               type="date"
               id="visit_date"
               name="visit_date"
-              className="w-full px-4 py-3 border-4 border-black bg-background text-foreground font-mono focus:outline-none focus:ring-4 focus:ring-primary/50"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
             />
           </div>
 
-          {/* Cuisine Tags */}
           <div>
             <label
               htmlFor="cuisine_tags"
-              className="block text-sm font-bold uppercase mb-2"
+              className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
             >
-              Cuisine Tags
+              Cuisine tags
             </label>
             <input
               type="text"
               id="cuisine_tags"
               name="cuisine_tags"
-              className="w-full px-4 py-3 border-4 border-black bg-background text-foreground font-mono focus:outline-none focus:ring-4 focus:ring-primary/50"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
               placeholder="e.g., sushi, japanese, omakase"
             />
-            <p className="mt-1 text-xs text-muted-foreground font-mono">
+            <p className="mt-2 text-xs text-slate-500">
               Separate tags with commas
             </p>
           </div>
 
-          {/* Rating */}
           <div>
-            <label className="block text-sm font-bold uppercase mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
               Rating
             </label>
-            <div className="flex items-center gap-1">
+            <div className="mt-3 flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -161,13 +144,13 @@ export function AddRestaurantModal({
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHoveredRating(star)}
                   onMouseLeave={() => setHoveredRating(0)}
-                  className="p-1 transition-transform hover:scale-110"
+                  className="rounded-full p-1 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
                 >
                   <Star
-                    className={`w-8 h-8 ${
+                    className={`h-7 w-7 ${
                       star <= (hoveredRating || rating)
-                        ? "text-secondary fill-current"
-                        : "text-muted-foreground"
+                        ? "text-amber-500 fill-current"
+                        : "text-slate-300"
                     }`}
                   />
                 </button>
@@ -176,7 +159,7 @@ export function AddRestaurantModal({
                 <button
                   type="button"
                   onClick={() => setRating(0)}
-                  className="ml-2 text-xs text-muted-foreground underline"
+                  className="ml-2 text-xs text-slate-500 underline"
                 >
                   Clear
                 </button>
@@ -184,49 +167,47 @@ export function AddRestaurantModal({
             </div>
           </div>
 
-          {/* Private Review */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Lock className="w-4 h-4 text-accent" />
+            <div className="flex items-center gap-2">
+              <Lock className="h-4 w-4 text-amber-600" />
               <label
                 htmlFor="review"
-                className="text-sm font-bold uppercase text-accent"
+                className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-700"
               >
-                Private Review
+                Private review
               </label>
             </div>
-            <div className="relative">
+            <div className="relative mt-3">
               <textarea
                 id="review"
                 name="review"
                 rows={4}
-                className="w-full px-4 py-3 border-4 border-accent/50 bg-accent/10 text-foreground font-mono focus:outline-none focus:ring-4 focus:ring-accent/50 resize-none"
+                className="w-full rounded-2xl border border-amber-200/60 bg-amber-50/60 px-4 py-3 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 resize-none"
                 placeholder="Write your honest thoughts... Only you can see this."
               />
-              <div className="absolute bottom-3 right-3 flex items-center gap-1 text-xs text-accent font-mono">
-                <Lock className="w-3 h-3" />
+              <div className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[11px] text-amber-700">
+                <Lock className="h-3 w-3" />
                 <span>Only you</span>
               </div>
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-4 pt-4 border-t-4 border-black">
+          <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 border-4 border-black bg-background text-foreground font-bold uppercase hover:bg-muted transition-colors"
+              className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:text-slate-900"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-4 border-black bg-primary text-black font-bold uppercase shadow-[3px_3px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_#000] transition-all disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-60"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Saving...
                 </>
               ) : (
@@ -235,7 +216,7 @@ export function AddRestaurantModal({
             </button>
           </div>
         </form>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }
