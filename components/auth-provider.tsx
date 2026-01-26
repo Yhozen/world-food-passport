@@ -19,7 +19,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       navigate={router.push as any}
       replace={router.replace as any}
       onSessionChange={() => router.refresh()}
-      Link={Link}
+      Link={Link as any}
     >
       {children}
     </NeonAuthUIProvider>
