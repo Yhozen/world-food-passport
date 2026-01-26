@@ -85,9 +85,12 @@ export default function ClickableWorldMapPreview({
                 {({ geographies }: { geographies: any[] }) =>
                   geographies.map((geo: any) => {
                     const props = (geo.properties ?? {}) as Record<string, unknown>;
+                    const country = getCountryFromProps(props);
                     const iso3 = getIso3FromGeo(geo);
-                    const isVisited = Boolean(iso3) && visitedLookup.has(iso3 ?? "");
 
+                    if (iso3 === "ATA" || country.name === "Antarctica") return null;
+
+                    const isVisited = Boolean(iso3) && visitedLookup.has(iso3 ?? "");
                     const isSelected = Boolean(selectedIso3) && iso3 === selectedIso3;
                     const defaultFill = "#E5E7EB";
                     const visitedFill = "#1F2A44";
@@ -99,7 +102,7 @@ export default function ClickableWorldMapPreview({
                       <Geography
                         key={geo.rsmKey}
                         geography={geo}
-                        onClick={() => setSelected(getCountryFromProps(props))}
+                        onClick={() => setSelected(country)}
                         style={{
                           default: {
                             fill,
