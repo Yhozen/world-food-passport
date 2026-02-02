@@ -1,15 +1,30 @@
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { cache } from "react";
+import { neonAuth } from "@neondatabase/auth/next/server";
 
 export const createTRPCContext = cache(async function createTRPCContext() {
-  return {};
+  const { user } = await neonAuth();
+  return { user };
 });
 
-const trpc = initTRPC.create({
+export type Context = Awaited<ReturnType<typeof createTRPCContext>>;
+
+const trpc = initTRPC.context<Context>().create({
   transformer: superjson,
 });
 
 export const createTRPCRouter = trpc.router;
 export const createCallerFactory = trpc.createCallerFactory;
 export const baseProcedure = trpc.procedure;
+
+export const protectedProcedure = trpc.procedure.use(async (opts) => {
+  const { ctx } = opts;
+  const user = ctx.user;
+  if (!user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return opts.next({
+    ctx: { ...ctx, user },
+  });
+});
