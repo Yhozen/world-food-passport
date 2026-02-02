@@ -16,6 +16,7 @@ model Restaurant {
   city        String?
   address     String?
   website     String?
+  googleMapsUrl String? @map("google_maps_url")
   latitude    Decimal?  @db.Decimal(10, 8)
   longitude   Decimal?  @db.Decimal(11, 8)
   cuisineTags String[]  @map("cuisine_tags")
