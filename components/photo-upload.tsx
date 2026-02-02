@@ -4,6 +4,13 @@ import React from "react";
 
 import { useState, useRef, useTransition } from "react";
 import { X, Upload, Loader2, ImageIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { uploadPhoto } from "@/lib/actions";
 import Image from "next/image";
 
@@ -85,40 +92,24 @@ export function PhotoUpload({
   };
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/70 z-50"
-        onClick={onClose}
-        onKeyDown={(e) => e.key === "Escape" && onClose()}
-        role="button"
-        tabIndex={0}
-        aria-label="Close modal"
-      />
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-200 bg-white/95 p-0 shadow-lg sm:max-w-xl">
+        <DialogHeader className="border-b border-slate-200 bg-white/80 px-6 py-5">
+          <DialogTitle className="text-xl font-semibold text-slate-900">
+            Upload photo
+          </DialogTitle>
+          <DialogDescription className="text-sm text-slate-600">
+            Add a memory to this visit.
+          </DialogDescription>
+        </DialogHeader>
 
-      {/* Modal */}
-      <div className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg bg-card border-4 border-black shadow-[8px_8px_0px_0px_#000] z-50 overflow-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-card border-b-4 border-black p-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold uppercase">Upload Photo</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-10 h-10 border-4 border-black bg-background flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="space-y-6 px-6 py-6">
           {error && (
-            <div className="p-4 border-4 border-black bg-destructive text-destructive-foreground font-bold">
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {error}
             </div>
           )}
 
-          {/* Drop Zone */}
           <div
             onClick={() => fileInputRef.current?.click()}
             onDrop={handleDrop}
@@ -128,19 +119,22 @@ export function PhotoUpload({
             }
             role="button"
             tabIndex={0}
-            className={`
-              relative border-4 border-dashed cursor-pointer transition-colors
-              ${preview ? "border-primary" : "border-muted hover:border-primary"}
-            `}
+            className={`group relative cursor-pointer rounded-2xl border border-dashed px-6 py-8 transition ${
+              preview
+                ? "border-slate-200 bg-white"
+                : "border-slate-200 bg-slate-50/80 hover:border-slate-300"
+            }`}
           >
             {preview ? (
-              <div className="relative aspect-video">
-                <Image
-                  src={preview || "/placeholder.svg"}
-                  alt="Preview"
-                  fill
-                  className="object-contain"
-                />
+              <div className="relative overflow-hidden rounded-2xl bg-slate-50">
+                <div className="relative aspect-[4/3]">
+                  <Image
+                    src={preview || "/placeholder.svg"}
+                    alt="Preview"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={(e) => {
@@ -148,22 +142,32 @@ export function PhotoUpload({
                     setPreview(null);
                     setFile(null);
                   }}
-                  className="absolute top-2 right-2 w-8 h-8 border-4 border-black bg-white text-black flex items-center justify-center hover:bg-destructive transition-colors"
+                  className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             ) : (
-              <div className="py-12 text-center">
-                <ImageIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="font-bold uppercase mb-2">Drop your photo here</p>
-                <p className="text-sm text-muted-foreground font-mono">
+              <div className="text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm">
+                  <ImageIcon className="h-7 w-7" />
+                </div>
+                <p className="text-sm font-semibold text-slate-900">
+                  Drop your photo here
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
                   or click to browse
                 </p>
-                <p className="text-xs text-muted-foreground font-mono mt-2">
+                <p className="mt-3 text-xs text-slate-500">
                   Max 10MB, JPG/PNG/WEBP
                 </p>
               </div>
+            )}
+
+            {file && (
+              <p className="mt-4 text-xs text-slate-500">
+                Selected: {file.name} · {formatFileSize(file.size)}
+              </p>
             )}
 
             <input
@@ -175,30 +179,28 @@ export function PhotoUpload({
             />
           </div>
 
-          {/* Caption */}
           <div>
             <label
               htmlFor="caption"
-              className="block text-sm font-bold uppercase mb-2"
+              className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
             >
-              Caption (Optional)
+              Caption (optional)
             </label>
             <input
               type="text"
               id="caption"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              className="w-full px-4 py-3 border-4 border-black bg-background text-foreground font-mono focus:outline-none focus:ring-4 focus:ring-secondary/50"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
               placeholder="Add a caption..."
             />
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-4 pt-4 border-t-4 border-black">
+          <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 border-4 border-black bg-background text-foreground font-bold uppercase hover:bg-muted transition-colors"
+              className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:text-slate-900"
             >
               Cancel
             </button>
@@ -206,23 +208,31 @@ export function PhotoUpload({
               type="button"
               onClick={handleSubmit}
               disabled={!file || isPending}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-4 border-black bg-secondary text-black font-bold uppercase shadow-[3px_3px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_#000] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-60"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Uploading...
                 </>
               ) : (
                 <>
-                  <Upload className="w-4 h-4" />
+                  <Upload className="h-4 w-4" />
                   Upload
                 </>
               )}
             </button>
           </div>
         </div>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   );
+}
+
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${kb.toFixed(0)} KB`;
+  const mb = kb / 1024;
+  return `${mb.toFixed(1)} MB`;
 }
