@@ -77,7 +77,7 @@ function getIso3FromGeo(geo: Record<string, unknown>): string | undefined {
 
 function getVisitCountValue(
   visitCounts: Map<string, number> | Record<string, number> | undefined,
-  iso3: string,
+  iso3: string
 ) {
   if (!visitCounts) return 0;
 
@@ -109,7 +109,7 @@ export default function ClickableWorldMapPreview({
   const [hoveredIso3, setHoveredIso3] = useState<string | null>(null);
   const [focusedIso3, setFocusedIso3] = useState<string | null>(null);
   const [hoverPayload, setHoverPayload] = useState<MapCountryPayload | null>(
-    null,
+    null
   );
   const [fallbackVisible, setFallbackVisible] = useState(false);
   const hasLoadedRef = useRef(false);
@@ -138,7 +138,9 @@ export default function ClickableWorldMapPreview({
     return () => clearTimeout(timeout);
   }, [hoverPayload, hoverDebounceMs, onCountryHover]);
 
-  function resolvePayload(geo: Record<string, unknown>): MapCountryPayload | null {
+  function resolvePayload(
+    geo: Record<string, unknown>
+  ): MapCountryPayload | null {
     const props = (geo.properties ?? {}) as Record<string, unknown>;
     const iso3 = getIso3FromGeo(geo);
     if (!iso3) return null;
@@ -211,10 +213,16 @@ export default function ClickableWorldMapPreview({
                 const isSelected = payload.iso3 === selectedIso3;
                 const isFocused = payload.iso3 === focusedIso3;
                 const isDisabled = isCountryDisabled?.(payload) ?? false;
-                const fill = getFill ? getFill(payload) : getDefaultFill(payload, isHovered);
+                const fill = getFill
+                  ? getFill(payload)
+                  : getDefaultFill(payload, isHovered);
                 const stroke = getStroke ? getStroke(payload) : DEFAULT_STROKE;
                 const strokeWidth = isSelected ? 1.2 : DEFAULT_STROKE_WIDTH;
-                const ringStroke = isSelected ? SELECTED_RING : isFocused ? FOCUS_RING : stroke;
+                const ringStroke = isSelected
+                  ? SELECTED_RING
+                  : isFocused
+                    ? FOCUS_RING
+                    : stroke;
 
                 return (
                   <Geography
@@ -264,7 +272,9 @@ export default function ClickableWorldMapPreview({
                         cursor: isDisabled ? "default" : "pointer",
                       },
                       hover: {
-                        fill: getFill ? getFill(payload) : getDefaultFill(payload, true),
+                        fill: getFill
+                          ? getFill(payload)
+                          : getDefaultFill(payload, true),
                         stroke: ringStroke,
                         strokeWidth,
                         outline: "none",

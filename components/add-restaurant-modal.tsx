@@ -66,7 +66,6 @@ export function AddRestaurantModal({
       if (typeof result.data.rating === "number") {
         setRating(Math.round(result.data.rating));
       }
-
     }
   }
 

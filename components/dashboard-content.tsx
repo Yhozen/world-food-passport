@@ -28,7 +28,10 @@ export function DashboardContent({
   const [showAddModal, setShowAddModal] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
 
-  const visitedIso3 = useMemo(() => Object.keys(countryVisits), [countryVisits]);
+  const visitedIso3 = useMemo(
+    () => Object.keys(countryVisits),
+    [countryVisits]
+  );
 
   const handleCountryClick = (code: string, name: string) => {
     if (selectedCountry?.code === code) {

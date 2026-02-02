@@ -120,9 +120,9 @@ export default async function LandingPage() {
             See your food world, by place.
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
-            World Food Passport lets you visually see all the food you know, by place,
-            at a glance. You can compete against your friends or follow their
-            best recommendations when you need a sure thing.
+            World Food Passport lets you visually see all the food you know, by
+            place, at a glance. You can compete against your friends or follow
+            their best recommendations when you need a sure thing.
           </p>
           <div className="mx-auto mt-8 w-full max-w-4xl rounded-3xl border border-slate-200 bg-white/80 p-4 shadow-sm md:p-6">
             <div className="flex flex-col gap-3 text-left">
