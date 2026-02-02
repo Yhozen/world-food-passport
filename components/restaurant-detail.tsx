@@ -133,15 +133,16 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-3">
-              {restaurant.rating && (
-                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-900 shadow-sm">
-                  <Star className="h-5 w-5 text-amber-500" />
-                  <span className="text-lg font-semibold">{restaurant.rating}</span>
-                </div>
-              )}
-              <SharedVisitLink restaurantId={restaurant.id} />
-            </div>
+            {restaurant.rating && (
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-900 shadow-sm">
+                <Star className="h-5 w-5 text-amber-500" />
+                <span className="text-lg font-semibold">{restaurant.rating}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+            <SharedVisitLink restaurantId={restaurant.id} />
           </div>
 
           {restaurant.cuisineTags && restaurant.cuisineTags.length > 0 && (

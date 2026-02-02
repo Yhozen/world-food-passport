@@ -13,6 +13,22 @@ function generateShareCode(): string {
 }
 
 export const sharedVisitsRouter = createTRPCRouter({
+  getByRestaurant: protectedProcedure
+    .input(z.object({ restaurantId: z.string() }))
+    .output(z.object({ shareCode: z.string() }).nullable())
+    .query(async ({ ctx, input }) => {
+      const sharedVisit = await prisma.sharedVisit.findFirst({
+        where: {
+          restaurantId: input.restaurantId,
+          ownerUserId: ctx.user.id,
+          isActive: true,
+        },
+        orderBy: { createdAt: "asc" },
+        select: { shareCode: true },
+      });
+
+      return sharedVisit ?? null;
+    }),
   createLink: protectedProcedure
     .input(z.object({ restaurantId: z.string() }))
     .output(
@@ -35,7 +51,11 @@ export const sharedVisitsRouter = createTRPCRouter({
       }
 
       const existing = await prisma.sharedVisit.findFirst({
-        where: { restaurantId: input.restaurantId },
+        where: {
+          restaurantId: input.restaurantId,
+          isActive: true,
+        },
+        orderBy: { createdAt: "asc" },
         select: { shareCode: true },
       });
 
@@ -61,6 +81,19 @@ export const sharedVisitsRouter = createTRPCRouter({
             error instanceof Prisma.PrismaClientKnownRequestError &&
             error.code === "P2002"
           ) {
+            const conflict = await prisma.sharedVisit.findFirst({
+              where: {
+                restaurantId: input.restaurantId,
+                isActive: true,
+              },
+              orderBy: { createdAt: "asc" },
+              select: { shareCode: true },
+            });
+
+            if (conflict) {
+              return { shareCode: conflict.shareCode };
+            }
+
             shareCode = generateShareCode();
             continue;
           }
