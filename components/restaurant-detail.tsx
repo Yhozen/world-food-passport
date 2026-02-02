@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,22 +17,29 @@ import {
   Edit3,
   Save,
 } from "lucide-react";
-import type { Restaurant, Review, Photo } from "@/lib/types";
 import { useTRPC } from "@/trpc/client";
 import { PhotoUpload } from "./photo-upload";
 import { SharedVisitLink } from "./shared-visit-link";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
+import { Photo } from "@/lib/types";
 
 interface RestaurantDetailProps {
-  data: {
-    restaurant: Restaurant;
-    review: Review | null;
-    photos: Photo[];
-  };
+  id: string;
 }
 
-export function RestaurantDetail({ data }: RestaurantDetailProps) {
+export function RestaurantDetail({ id }: RestaurantDetailProps) {
+  const trpc = useTRPC();
+  const { data } = useSuspenseQuery(
+    trpc.restaurants.getWithDetails.queryOptions({
+      id,
+    })
+  );
+  if (!data) {
+    notFound();
+  }
+
   const { restaurant, review: initialReview, photos: initialPhotos } = data;
+
   const router = useRouter();
 
   const [photos, setPhotos] = useState(initialPhotos);
@@ -42,10 +49,9 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [isPending, startTransition] = useTransition();
-  const trpc = useTRPC();
   const saveReview = useMutation(trpc.reviews.save.mutationOptions());
   const deleteRestaurant = useMutation(
-    trpc.restaurants.delete.mutationOptions(),
+    trpc.restaurants.delete.mutationOptions()
   );
   const deletePhoto = useMutation(trpc.photos.delete.mutationOptions());
 
@@ -76,7 +82,14 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
 
   const handlePhotoUploaded = (url: string) => {
     setPhotos([
-      { id: Date.now().toString(), storageUrl: url, caption: null } as Photo,
+      {
+        id: Date.now().toString(),
+        restaurantId: restaurant.id,
+        userId: restaurant.userId,
+        storageUrl: url,
+        caption: null,
+        uploadedAt: new Date(),
+      },
       ...photos,
     ]);
     setShowPhotoUpload(false);
@@ -136,7 +149,9 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
             {restaurant.rating && (
               <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-900 shadow-sm">
                 <Star className="h-5 w-5 text-amber-500" />
-                <span className="text-lg font-semibold">{restaurant.rating}</span>
+                <span className="text-lg font-semibold">
+                  {restaurant.rating}
+                </span>
               </div>
             )}
           </div>
@@ -284,31 +299,31 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
           </button>
         </div>
 
-      {showPhotoUpload && (
-        <PhotoUpload
-          restaurantId={restaurant.id}
-          onClose={() => setShowPhotoUpload(false)}
-          onSuccess={handlePhotoUploaded}
-        />
-      )}
+        {showPhotoUpload && (
+          <PhotoUpload
+            restaurantId={restaurant.id}
+            onClose={() => setShowPhotoUpload(false)}
+            onSuccess={handlePhotoUploaded}
+          />
+        )}
 
-      {selectedPhoto && (
-        <PhotoLightbox
-          photo={selectedPhoto}
-          onClose={() => setSelectedPhoto(null)}
-          onDelete={() => handleDeletePhoto(selectedPhoto.id)}
-          isPending={isPending}
-        />
-      )}
+        {selectedPhoto && (
+          <PhotoLightbox
+            photo={selectedPhoto}
+            onClose={() => setSelectedPhoto(null)}
+            onDelete={() => handleDeletePhoto(selectedPhoto.id)}
+            isPending={isPending}
+          />
+        )}
 
-      {showDeleteConfirm && (
-        <DeleteConfirmation
-          name={restaurant.name}
-          onCancel={() => setShowDeleteConfirm(false)}
-          onConfirm={handleDeleteRestaurant}
-          isPending={isPending}
-        />
-      )}
+        {showDeleteConfirm && (
+          <DeleteConfirmation
+            name={restaurant.name}
+            onCancel={() => setShowDeleteConfirm(false)}
+            onConfirm={handleDeleteRestaurant}
+            isPending={isPending}
+          />
+        )}
       </div>
     </div>
   );
