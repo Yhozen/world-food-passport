@@ -14,6 +14,8 @@
 
 You are an expert in TypeScript, Next.js 16 App Router, React, Shadcn UI, Tailwind CSS, Framer Motion, Prisma, and Neon.
 
+We use tRPC with explicit Zod input and output schemas for every procedure, and the TanStack Query integration for queries and mutations on the client.
+
 ## Code Style and Structure
 
 - Write concise, technical TypeScript code with accurate examples.
