@@ -2,6 +2,7 @@
 
 import React from "react";
 
+import { useMutation } from "@tanstack/react-query";
 import { useState, useRef, useTransition } from "react";
 import { X, Upload, Loader2, ImageIcon } from "lucide-react";
 import {
@@ -11,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { uploadPhoto } from "@/lib/actions";
+import { useTRPC } from "@/trpc/client";
 import Image from "next/image";
 
 interface PhotoUploadProps {
@@ -31,6 +32,8 @@ export function PhotoUpload({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const trpc = useTRPC();
+  const uploadPhoto = useMutation(trpc.photos.upload.mutationOptions());
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -73,20 +76,26 @@ export function PhotoUpload({
 
   const handleSubmit = () => {
     if (!file) return;
-
-    const formData = new FormData();
-    formData.append("restaurant_id", restaurantId);
-    formData.append("file", file);
-    if (caption) {
-      formData.append("caption", caption);
-    }
+    setError(null);
 
     startTransition(async () => {
-      const result = await uploadPhoto(formData);
-      if (result?.error) {
-        setError(result.error);
-      } else if (result?.url) {
+      try {
+        const fileBase64 = await fileToBase64(file);
+        const result = await uploadPhoto.mutateAsync({
+          restaurantId,
+          fileName: file.name,
+          fileType: file.type,
+          fileBase64,
+          fileSize: file.size,
+          caption: caption || null,
+        });
         onSuccess(result.url);
+      } catch (uploadError) {
+        setError(
+          uploadError instanceof Error
+            ? uploadError.message
+            : "Unable to upload photo",
+        );
       }
     });
   };
@@ -235,4 +244,25 @@ function formatFileSize(bytes: number) {
   if (kb < 1024) return `${kb.toFixed(0)} KB`;
   const mb = kb / 1024;
   return `${mb.toFixed(1)} MB`;
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Unable to read file"));
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result !== "string") {
+        reject(new Error("Unable to read file"));
+        return;
+      }
+      const base64 = result.split(",")[1];
+      if (!base64) {
+        reject(new Error("Unable to read file"));
+        return;
+      }
+      resolve(base64);
+    };
+    reader.readAsDataURL(file);
+  });
 }

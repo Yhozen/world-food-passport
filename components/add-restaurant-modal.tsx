@@ -1,6 +1,8 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import { useState, useTransition } from "react";
+import type { FormEvent } from "react";
 import { Link2, Loader2, Lock, Star } from "lucide-react";
 import {
   Dialog,
@@ -9,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { createRestaurant, resolveGoogleMapsLink } from "@/lib/actions";
+import { useTRPC } from "@/trpc/client";
 
 interface AddRestaurantModalProps {
   country: { code: string; name: string };
@@ -37,6 +39,13 @@ export function AddRestaurantModal({
   const [website, setWebsite] = useState<string>("");
   const [latitude, setLatitude] = useState<string>("");
   const [longitude, setLongitude] = useState<string>("");
+  const trpc = useTRPC();
+  const resolveMapsLink = useMutation(
+    trpc.maps.resolveGoogleMapsLink.mutationOptions(),
+  );
+  const createRestaurant = useMutation(
+    trpc.restaurants.create.mutationOptions(),
+  );
 
   async function handleAutofill() {
     setAutofillError(null);
@@ -47,15 +56,15 @@ export function AddRestaurantModal({
     }
 
     setIsFetchingPlace(true);
-    const result = await resolveGoogleMapsLink(mapsLink);
-    setIsFetchingPlace(false);
+    try {
+      const result = await resolveMapsLink.mutateAsync({ link: mapsLink });
+      setIsFetchingPlace(false);
 
-    if (result?.error) {
-      setAutofillError(result.error);
-      return;
-    }
+      if ("error" in result) {
+        setAutofillError(result.error);
+        return;
+      }
 
-    if (result?.data) {
       setName(result.data.name || "");
       setCity(result.data.city || "");
       setAddress(result.data.address || "");
@@ -66,18 +75,52 @@ export function AddRestaurantModal({
       if (typeof result.data.rating === "number") {
         setRating(Math.round(result.data.rating));
       }
+    } catch (fetchError) {
+      setIsFetchingPlace(false);
+      setAutofillError(
+        fetchError instanceof Error
+          ? fetchError.message
+          : "Unable to fetch place details",
+      );
+      return;
     }
+
   }
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError(null);
 
+    const formData = new FormData(event.currentTarget);
+    const visitDate = (formData.get("visit_date") as string) || null;
+    const cuisineTagsInput = (formData.get("cuisine_tags") as string) || "";
+    const cuisineTags = cuisineTagsInput
+      ? cuisineTagsInput
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean)
+      : [];
+
     startTransition(async () => {
-      const result = await createRestaurant(formData);
-      if (result?.error) {
-        setError(result.error);
-      } else {
+      try {
+        await createRestaurant.mutateAsync({
+          name,
+          countryCode: country.code,
+          countryName: country.name,
+          city: city || null,
+          address: address || null,
+          website: website || null,
+          googleMapsUrl: mapsLink || null,
+          latitude: latitude || null,
+          longitude: longitude || null,
+          cuisineTags,
+          visitDate,
+          rating: rating > 0 ? rating : null,
+          review: (formData.get("review") as string) || null,
+        });
         onSuccess();
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Unable to save restaurant");
       }
     });
   }
@@ -94,7 +137,7 @@ export function AddRestaurantModal({
           </DialogDescription>
         </DialogHeader>
 
-        <form action={handleSubmit} className="space-y-6 px-6 py-6">
+        <form onSubmit={handleSubmit} className="space-y-6 px-6 py-6">
           <input type="hidden" name="country_code" value={country.code} />
           <input type="hidden" name="country_name" value={country.name} />
           <input type="hidden" name="rating" value={rating} />

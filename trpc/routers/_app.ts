@@ -1,19 +1,18 @@
-import { z } from "zod";
-
-import { baseProcedure, createTRPCRouter } from "../init";
+import { createTRPCRouter } from "../init";
+import { mapsRouter } from "./maps";
+import { photosRouter } from "./photos";
+import { restaurantsRouter } from "./restaurants";
+import { reviewsRouter } from "./reviews";
+import { sharedVisitsRouter } from "./shared-visits";
+import { statsRouter } from "./stats";
 
 export const appRouter = createTRPCRouter({
-  hello: baseProcedure
-    .input(
-      z.object({
-        text: z.string(),
-      }),
-    )
-    .query((opts) => {
-      return {
-        greeting: `hello ${opts.input.text}`,
-      };
-    }),
+  maps: mapsRouter,
+  photos: photosRouter,
+  restaurants: restaurantsRouter,
+  reviews: reviewsRouter,
+  sharedVisits: sharedVisitsRouter,
+  stats: statsRouter,
 });
 
 export type AppRouter = typeof appRouter;

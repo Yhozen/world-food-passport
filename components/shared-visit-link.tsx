@@ -1,8 +1,9 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import { useState, useTransition } from "react";
 import { Check, Copy, Link2, Loader2 } from "lucide-react";
-import { createSharedVisitLink } from "@/lib/actions";
+import { useTRPC } from "@/trpc/client";
 
 interface SharedVisitLinkProps {
   restaurantId: string;
@@ -13,16 +14,23 @@ export function SharedVisitLink({ restaurantId }: SharedVisitLinkProps) {
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const trpc = useTRPC();
+  const createSharedVisitLink = useMutation(
+    trpc.sharedVisits.createLink.mutationOptions(),
+  );
 
   const handleCreateLink = () => {
     setError(null);
     startTransition(async () => {
-      const result = await createSharedVisitLink(restaurantId);
-      if (result?.error) {
-        setError(result.error);
-        return;
-      }
-      if (result?.shareCode) {
+      try {
+        const result = await createSharedVisitLink.mutateAsync({
+          restaurantId,
+        });
+        if ("error" in result) {
+          setError(result.error);
+          return;
+        }
+
         const url = `${window.location.origin}/share/${result.shareCode}`;
         setShareUrl(url);
         setIsCopied(false);
@@ -32,6 +40,12 @@ export function SharedVisitLink({ restaurantId }: SharedVisitLinkProps) {
         } catch {
           setIsCopied(false);
         }
+      } catch (createError) {
+        setError(
+          createError instanceof Error
+            ? createError.message
+            : "Unable to create share link",
+        );
       }
     });
   };

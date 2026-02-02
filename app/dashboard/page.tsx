@@ -1,5 +1,5 @@
 import { DM_Sans } from "next/font/google";
-import { getCountryVisits, getUserStats } from "@/lib/actions";
+import { getQueryClient, trpc } from "@/trpc/server";
 import { countries } from "@/lib/countries";
 import { DashboardContent } from "@/components/dashboard-content";
 
@@ -9,9 +9,10 @@ const dmSans = DM_Sans({
 });
 
 export default async function DashboardPage() {
+  const queryClient = getQueryClient();
   const [countryVisits, stats] = await Promise.all([
-    getCountryVisits(),
-    getUserStats(),
+    queryClient.fetchQuery(trpc.stats.getCountryVisits.queryOptions()),
+    queryClient.fetchQuery(trpc.stats.getUserStats.queryOptions()),
   ]);
   const nameByIso3 = Object.fromEntries(
     countries.map((country) => [country.code, country.name]),

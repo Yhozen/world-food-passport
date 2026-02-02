@@ -1,5 +1,5 @@
 import { DM_Sans } from "next/font/google";
-import { getCountryVisits, getUserStats } from "@/lib/actions";
+import { getQueryClient, trpc } from "@/trpc/server";
 import { StatsContent } from "@/components/stats-content";
 
 const dmSans = DM_Sans({
@@ -8,9 +8,10 @@ const dmSans = DM_Sans({
 });
 
 export default async function StatsPage() {
+  const queryClient = getQueryClient();
   const [stats, countryVisits] = await Promise.all([
-    getUserStats(),
-    getCountryVisits(),
+    queryClient.fetchQuery(trpc.stats.getUserStats.queryOptions()),
+    queryClient.fetchQuery(trpc.stats.getCountryVisits.queryOptions()),
   ]);
 
   return (

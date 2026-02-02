@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,7 +18,7 @@ import {
   Save,
 } from "lucide-react";
 import type { Restaurant, Review, Photo } from "@/lib/types";
-import { deleteRestaurant, saveReview, deletePhoto } from "@/lib/actions";
+import { useTRPC } from "@/trpc/client";
 import { PhotoUpload } from "./photo-upload";
 import { SharedVisitLink } from "./shared-visit-link";
 import { useRouter } from "next/navigation";
@@ -41,22 +42,35 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [isPending, startTransition] = useTransition();
+  const trpc = useTRPC();
+  const saveReview = useMutation(trpc.reviews.save.mutationOptions());
+  const deleteRestaurant = useMutation(
+    trpc.restaurants.delete.mutationOptions(),
+  );
+  const deletePhoto = useMutation(trpc.photos.delete.mutationOptions());
 
   const handleSaveReview = () => {
-    const formData = new FormData();
-    formData.append("restaurant_id", restaurant.id);
-    formData.append("content", review);
-
     startTransition(async () => {
-      await saveReview(formData);
-      setIsEditingReview(false);
+      try {
+        await saveReview.mutateAsync({
+          restaurantId: restaurant.id,
+          content: review,
+        });
+        setIsEditingReview(false);
+      } catch {
+        setIsEditingReview(false);
+      }
     });
   };
 
   const handleDeleteRestaurant = () => {
     startTransition(async () => {
-      await deleteRestaurant(restaurant.id);
-      router.push("/dashboard");
+      try {
+        await deleteRestaurant.mutateAsync({ id: restaurant.id });
+        router.push("/dashboard");
+      } catch {
+        router.push("/dashboard");
+      }
     });
   };
 
@@ -70,9 +84,13 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
 
   const handleDeletePhoto = (photoId: string) => {
     startTransition(async () => {
-      await deletePhoto(photoId);
-      setPhotos(photos.filter((p) => p.id !== photoId));
-      setSelectedPhoto(null);
+      try {
+        await deletePhoto.mutateAsync({ id: photoId });
+        setPhotos(photos.filter((p) => p.id !== photoId));
+        setSelectedPhoto(null);
+      } catch {
+        setSelectedPhoto(null);
+      }
     });
   };
 

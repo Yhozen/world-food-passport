@@ -1,4 +1,4 @@
-import { getRestaurantWithDetails } from "@/lib/actions";
+import { getQueryClient, trpc } from "@/trpc/server";
 import { notFound } from "next/navigation";
 import { RestaurantDetail } from "@/components/restaurant-detail";
 
@@ -8,7 +8,10 @@ interface PageProps {
 
 export default async function RestaurantPage({ params }: PageProps) {
   const { id } = await params;
-  const data = await getRestaurantWithDetails(id);
+  const queryClient = getQueryClient();
+  const data = await queryClient.fetchQuery(
+    trpc.restaurants.getWithDetails.queryOptions({ id }),
+  );
 
   if (!data) {
     notFound();
