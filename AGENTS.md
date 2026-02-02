@@ -104,7 +104,7 @@ For example:
 
 ## Ask Me Anything
 
-When unclear about requirements or implementation details, ask clarifying questions before proceeding. This includes:
+When unclear about requirements or implementation details, ask clarifying questions before proceeding using the `AskUserQuestionTool`. This includes:
 
 - Business logic and feature requirements
 - Data model relationships and constraints
@@ -145,6 +145,7 @@ Core workflow:
 7. **Hand off** - Provide context for next session
 
 **CRITICAL RULES:**
+
 - Work is NOT complete until `git push` succeeds
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
