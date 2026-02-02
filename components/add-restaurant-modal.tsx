@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, Lock, Star } from "lucide-react";
+import { Link2, Loader2, Lock, Star } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { createRestaurant } from "@/lib/actions";
+import { createRestaurant, resolveGoogleMapsLink } from "@/lib/actions";
 
 interface AddRestaurantModalProps {
   country: { code: string; name: string };
@@ -28,6 +28,47 @@ export function AddRestaurantModal({
   const [hoveredRating, setHoveredRating] = useState<number>(0);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [mapsLink, setMapsLink] = useState<string>("");
+  const [isFetchingPlace, setIsFetchingPlace] = useState<boolean>(false);
+  const [autofillError, setAutofillError] = useState<string | null>(null);
+  const [name, setName] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [website, setWebsite] = useState<string>("");
+  const [latitude, setLatitude] = useState<string>("");
+  const [longitude, setLongitude] = useState<string>("");
+
+  async function handleAutofill() {
+    setAutofillError(null);
+
+    if (!mapsLink.trim()) {
+      setAutofillError("Paste a Google Maps link to autofill details.");
+      return;
+    }
+
+    setIsFetchingPlace(true);
+    const result = await resolveGoogleMapsLink(mapsLink);
+    setIsFetchingPlace(false);
+
+    if (result?.error) {
+      setAutofillError(result.error);
+      return;
+    }
+
+    if (result?.data) {
+      setName(result.data.name || "");
+      setCity(result.data.city || "");
+      setAddress(result.data.address || "");
+      setWebsite(result.data.website || "");
+      setLatitude(result.data.latitude || "");
+      setLongitude(result.data.longitude || "");
+
+      if (typeof result.data.rating === "number") {
+        setRating(Math.round(result.data.rating));
+      }
+
+    }
+  }
 
   async function handleSubmit(formData: FormData) {
     setError(null);
@@ -58,12 +99,58 @@ export function AddRestaurantModal({
           <input type="hidden" name="country_code" value={country.code} />
           <input type="hidden" name="country_name" value={country.name} />
           <input type="hidden" name="rating" value={rating} />
+          <input type="hidden" name="latitude" value={latitude} />
+          <input type="hidden" name="longitude" value={longitude} />
 
           {error && (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {error}
             </div>
           )}
+
+          <div>
+            <label
+              htmlFor="maps_link"
+              className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
+            >
+              Google Maps link (optional)
+            </label>
+            <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative flex-1">
+                <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="url"
+                  id="maps_link"
+                  name="google_maps_url"
+                  value={mapsLink}
+                  onChange={(event) => setMapsLink(event.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-white/80 px-10 py-2.5 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
+                  placeholder="https://maps.google.com/..."
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleAutofill}
+                disabled={isFetchingPlace}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:text-slate-900 disabled:opacity-60"
+              >
+                {isFetchingPlace ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Fetching...
+                  </>
+                ) : (
+                  "Autofill"
+                )}
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-slate-500">
+              Paste a link to autofill name, address, rating, and location.
+            </p>
+            {autofillError && (
+              <p className="mt-2 text-xs text-rose-600">{autofillError}</p>
+            )}
+          </div>
 
           <div>
             <label
@@ -77,6 +164,8 @@ export function AddRestaurantModal({
               id="name"
               name="name"
               required
+              value={name}
+              onChange={(event) => setName(event.target.value)}
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
               placeholder="e.g., Sushi Jiro"
             />
@@ -93,8 +182,46 @@ export function AddRestaurantModal({
               type="text"
               id="city"
               name="city"
+              value={city}
+              onChange={(event) => setCity(event.target.value)}
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
               placeholder="e.g., Tokyo"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="address"
+              className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
+            >
+              Address
+            </label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
+              placeholder="Street address"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="website"
+              className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
+            >
+              Website
+            </label>
+            <input
+              type="url"
+              id="website"
+              name="website"
+              value={website}
+              onChange={(event) => setWebsite(event.target.value)}
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
+              placeholder="https://restaurant.com"
             />
           </div>
 

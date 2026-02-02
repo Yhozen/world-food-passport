@@ -6,7 +6,7 @@ export const env = createEnv({
     DATABASE_URL: z.url(),
     NEON_AUTH_BASE_URL: z.url(),
     BLOB_READ_WRITE_TOKEN: z.string(),
+    GOOGLE_MAPS_API_KEY: z.string(),
   },
-
   experimental__runtimeEnv: process.env,
 });
