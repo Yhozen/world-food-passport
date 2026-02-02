@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { neonAuth } from "@neondatabase/auth/next/server";
+import { Suspense } from "react";
+
+import { AuthNavLink } from "./_components/auth-nav-link";
 import { MapExample } from "./_components/map-example";
 
 const title = "World Food Passport | Restaurant tracker for your food world";
@@ -69,9 +71,7 @@ const faqItems: FaqItem[] = [
   },
 ];
 
-export default async function LandingPage() {
-  const { user } = await neonAuth();
-
+export default function LandingPage() {
   return (
     <main
       className={`min-h-screen bg-[radial-gradient(70%_80%_at_50%_0%,#fff7e6_0%,#f4f1ea_55%,#efe8dc_100%)] text-slate-950`}
@@ -81,15 +81,15 @@ export default async function LandingPage() {
           <Link href="/" className="font-medium text-slate-950">
             World Food Passport
           </Link>
-          {user ? (
-            <Link href="/dashboard" className="hover:text-slate-900">
-              Go to dashboard
-            </Link>
-          ) : (
-            <Link href="/auth/sign-in" className="hover:text-slate-900">
-              Sign In
-            </Link>
-          )}
+          <Suspense
+            fallback={
+              <Link href="/auth/sign-in" className="hover:text-slate-900">
+                Sign In
+              </Link>
+            }
+          >
+            <AuthNavLink />
+          </Suspense>
         </nav>
 
         <section className="mt-20 flex flex-1 flex-col items-center justify-center text-center">
@@ -107,10 +107,10 @@ export default async function LandingPage() {
               Get Started
             </Link>
             <Link
-              href={user ? "/dashboard" : "/auth/sign-in"}
+              href="/auth/sign-in"
               className="rounded-full border border-slate-300 bg-white px-6 py-3 text-sm text-slate-900 transition hover:border-slate-400"
             >
-              {user ? "Jump into your map" : "Stamp my map"}
+              Stamp my map
             </Link>
           </div>
         </section>
