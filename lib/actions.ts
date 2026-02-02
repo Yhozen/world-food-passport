@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { randomBytes } from "crypto";
 import { neonAuth } from "@neondatabase/auth/next/server";
 import { put, del } from "@vercel/blob";
 import { env } from "@/env/server";
@@ -32,6 +33,10 @@ function ensureUrl(rawLink: string): string {
     return trimmed;
   }
   return `https://${trimmed}`;
+}
+
+function generateShareCode(): string {
+  return randomBytes(6).toString("base64url");
 }
 
 async function resolveFinalUrl(rawLink: string): Promise<string> {
@@ -550,6 +555,32 @@ export async function uploadPhoto(formData: FormData) {
     return { error: "File and restaurant ID are required" };
   }
 
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+    select: { userId: true },
+  });
+
+  if (!restaurant) {
+    return { error: "Restaurant not found" };
+  }
+
+  if (restaurant.userId !== user.id) {
+    const sharedMembership = await prisma.sharedVisitMember.findFirst({
+      where: {
+        userId: user.id,
+        sharedVisit: {
+          restaurantId,
+          isActive: true,
+        },
+      },
+      select: { id: true },
+    });
+
+    if (!sharedMembership) {
+      return { error: "Unauthorized" };
+    }
+  }
+
   const blob = await put(
     `world-food-passport/${user.id}/${restaurantId}/${Date.now()}-${file.name}`,
     file,
@@ -600,6 +631,160 @@ export async function deletePhoto(id: string) {
   });
 
   revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function createSharedVisitLink(restaurantId: string) {
+  const user = await requireUser();
+  if (!user) {
+    return { error: "Unauthorized" };
+  }
+
+  const restaurant = await prisma.restaurant.findFirst({
+    where: {
+      id: restaurantId,
+      userId: user.id,
+    },
+    select: { id: true },
+  });
+
+  if (!restaurant) {
+    return { error: "Restaurant not found" };
+  }
+
+  const existing = await prisma.sharedVisit.findFirst({
+    where: { restaurantId },
+    select: { shareCode: true },
+  });
+
+  if (existing) {
+    return { shareCode: existing.shareCode };
+  }
+
+  let shareCode = generateShareCode();
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      const created = await prisma.sharedVisit.create({
+        data: {
+          restaurantId,
+          ownerUserId: user.id,
+          shareCode,
+        },
+        select: { shareCode: true },
+      });
+
+      return { shareCode: created.shareCode };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        shareCode = generateShareCode();
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  return { error: "Could not create share link" };
+}
+
+export async function getSharedVisitByCode(shareCode: string): Promise<{
+  sharedVisit: {
+    id: string;
+    shareCode: string;
+    restaurantId: string;
+    ownerUserId: string;
+    restaurant: Restaurant;
+  };
+  isOwner: boolean;
+  isMember: boolean;
+  photos: Photo[];
+} | null> {
+  const sharedVisit = await prisma.sharedVisit.findFirst({
+    where: {
+      shareCode,
+      isActive: true,
+    },
+    include: {
+      restaurant: true,
+      members: { select: { userId: true } },
+    },
+  });
+
+  if (!sharedVisit) {
+    return null;
+  }
+
+  const user = await requireUser();
+  const isOwner = Boolean(user && sharedVisit.ownerUserId === user.id);
+  const isMember = Boolean(
+    user &&
+      (isOwner ||
+        sharedVisit.members.some(
+          (member: { userId: string }) => member.userId === user.id,
+        )),
+  );
+
+  const photos = isMember
+    ? await prisma.photo.findMany({
+        where: { restaurantId: sharedVisit.restaurantId },
+        orderBy: { uploadedAt: "desc" },
+      })
+    : [];
+
+  return {
+    sharedVisit: {
+      id: sharedVisit.id,
+      shareCode: sharedVisit.shareCode,
+      restaurantId: sharedVisit.restaurantId,
+      ownerUserId: sharedVisit.ownerUserId,
+      restaurant: sharedVisit.restaurant,
+    },
+    isOwner,
+    isMember,
+    photos,
+  };
+}
+
+export async function joinSharedVisit(formData: FormData) {
+  const user = await requireUser();
+  if (!user) {
+    return { error: "Unauthorized" };
+  }
+
+  const shareCode = (formData.get("share_code") as string) || "";
+  if (!shareCode) {
+    return { error: "Share code is required" };
+  }
+
+  const sharedVisit = await prisma.sharedVisit.findFirst({
+    where: {
+      shareCode,
+      isActive: true,
+    },
+    select: { id: true },
+  });
+
+  if (!sharedVisit) {
+    return { error: "Share link not found" };
+  }
+
+  await prisma.sharedVisitMember.upsert({
+    where: {
+      sharedVisitId_userId: {
+        sharedVisitId: sharedVisit.id,
+        userId: user.id,
+      },
+    },
+    update: {},
+    create: {
+      sharedVisitId: sharedVisit.id,
+      userId: user.id,
+    },
+  });
+
+  revalidatePath(`/share/${shareCode}`);
   return { success: true };
 }
 

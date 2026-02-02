@@ -19,6 +19,7 @@ import {
 import type { Restaurant, Review, Photo } from "@/lib/types";
 import { deleteRestaurant, saveReview, deletePhoto } from "@/lib/actions";
 import { PhotoUpload } from "./photo-upload";
+import { SharedVisitLink } from "./shared-visit-link";
 import { useRouter } from "next/navigation";
 
 interface RestaurantDetailProps {
@@ -114,12 +115,15 @@ export function RestaurantDetail({ data }: RestaurantDetailProps) {
               </div>
             </div>
 
-            {restaurant.rating && (
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-900 shadow-sm">
-                <Star className="h-5 w-5 text-amber-500" />
-                <span className="text-lg font-semibold">{restaurant.rating}</span>
-              </div>
-            )}
+            <div className="flex flex-col items-end gap-3">
+              {restaurant.rating && (
+                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-900 shadow-sm">
+                  <Star className="h-5 w-5 text-amber-500" />
+                  <span className="text-lg font-semibold">{restaurant.rating}</span>
+                </div>
+              )}
+              <SharedVisitLink restaurantId={restaurant.id} />
+            </div>
           </div>
 
           {restaurant.cuisineTags && restaurant.cuisineTags.length > 0 && (
