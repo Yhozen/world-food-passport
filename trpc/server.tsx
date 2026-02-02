@@ -5,6 +5,7 @@ import {
   TRPCQueryOptions,
 } from "@trpc/tanstack-react-query";
 import { cache } from "react";
+import superjson from "superjson";
 
 import { createTRPCContext } from "@/trpc/init";
 import { makeQueryClient } from "@/trpc/query-client";
@@ -22,7 +23,11 @@ export const trpc = createTRPCOptionsProxy({
 export function HydrateClient(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <HydrationBoundary
+      state={dehydrate(queryClient, {
+        serializeData: superjson.serialize,
+      })}
+    >
       {props.children}
     </HydrationBoundary>
   );
