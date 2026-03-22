@@ -47,3 +47,22 @@ export const sharedVisitSchema = z.object({
   ownerUserId: z.string(),
   restaurant: restaurantSchema,
 });
+
+export const challengeUnlockPayloadSchema = z.object({
+  challengeId: z.string(),
+  newlyUnlockedKeys: z.array(z.string()),
+});
+
+export const challengeV1SummarySchema = z.object({
+  challengeId: z.string(),
+  title: z.string(),
+  description: z.string(),
+  targetCountryCodes: z.array(z.string()),
+  milestones: z.array(z.number().int()),
+  completionThreshold: z.number().int().nullable(),
+  completionUnlockKey: z.string(),
+  enrolledAt: z.date().nullable(),
+  uniqueTargetCount: z.number().int(),
+  unlockedCountryCodes: z.array(z.string()),
+  unlockedAchievements: z.array(z.string()),
+});

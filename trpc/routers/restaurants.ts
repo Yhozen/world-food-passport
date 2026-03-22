@@ -5,8 +5,14 @@ import { revalidatePath } from "next/cache";
 import { del } from "@vercel/blob";
 
 import { prisma } from "@/lib/prisma";
+import { applyRestaurantCreateToChallenges } from "@/lib/challenges/service";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { photoSchema, restaurantSchema, reviewSchema } from "@/trpc/routers/schemas";
+import {
+  challengeUnlockPayloadSchema,
+  photoSchema,
+  restaurantSchema,
+  reviewSchema,
+} from "@/trpc/routers/schemas";
 
 function parseCuisineTags(tags: string[]) {
   return tags.map((tag) => tag.trim()).filter(Boolean);
@@ -35,6 +41,7 @@ export const restaurantsRouter = createTRPCRouter({
       z.object({
         success: z.literal(true),
         restaurantId: z.string(),
+        challengeUnlock: challengeUnlockPayloadSchema.optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -95,8 +102,25 @@ export const restaurantsRouter = createTRPCRouter({
         },
       });
 
+      const challengeResult = await applyRestaurantCreateToChallenges({
+        userId: ctx.user.id,
+        countryCode: input.countryCode,
+        createdAt: restaurant.createdAt,
+      });
+
+      const challengeUnlock = challengeResult.newlyUnlockedKeys.length
+        ? {
+            challengeId: challengeResult.challengeId,
+            newlyUnlockedKeys: challengeResult.newlyUnlockedKeys,
+          }
+        : undefined;
+
       revalidatePath("/dashboard");
-      return { success: true, restaurantId: restaurant.id };
+      return {
+        success: true,
+        restaurantId: restaurant.id,
+        challengeUnlock,
+      };
     }),
   update: protectedProcedure
     .input(
