@@ -1,9 +1,9 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { cache } from "react";
+import { neonAuth } from "@neondatabase/auth/next/server";
 
 export const createTRPCContext = cache(async function createTRPCContext() {
-  const { neonAuth } = await import("@neondatabase/auth/next/server");
   const { user } = await neonAuth();
   return { user };
 });

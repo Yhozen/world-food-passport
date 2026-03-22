@@ -7,6 +7,10 @@ import { getChallengeSummaryForUser } from "@/lib/challenges/service";
 import { type Context } from "@/trpc/init";
 import { challengesRouter } from "@/trpc/routers/challenges";
 
+vi.mock("@neondatabase/auth/next/server", () => ({
+  neonAuth: vi.fn(),
+}));
+
 vi.mock("@/lib/challenges/service", () => ({
   getChallengeSummaryForUser: vi.fn(),
 }));

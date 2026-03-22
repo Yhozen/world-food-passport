@@ -7,6 +7,10 @@ import { prisma } from "@/lib/prisma";
 import { type Context } from "@/trpc/init";
 import { restaurantsRouter } from "@/trpc/routers/restaurants";
 
+vi.mock("@neondatabase/auth/next/server", () => ({
+  neonAuth: vi.fn(),
+}));
+
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
