@@ -74,6 +74,14 @@ function dedupeNormalizedCountryCodes(countryCodes: readonly string[]): string[]
   return [...new Set(countryCodes.map((countryCode) => normalizeCountryCode(countryCode)).filter(Boolean))];
 }
 
+function runMetricHook(metricName: string, action: () => void): void {
+  try {
+    action();
+  } catch (error) {
+    console.error(`[challenges.metrics] ${metricName}`, error);
+  }
+}
+
 async function getOrEnrollProgress(
   tx: Prisma.TransactionClient,
   userId: string,
@@ -285,10 +293,12 @@ export async function getChallengeSummaryForUser(userId: string): Promise<Challe
   }
 
   for (const startedEvent of startedEvents) {
-    emitChallengeStarted({
-      userId,
-      challengeId: startedEvent.challengeId,
-      enrolledAt: startedEvent.enrolledAt,
+    runMetricHook("challenge_started", () => {
+      emitChallengeStarted({
+        userId,
+        challengeId: startedEvent.challengeId,
+        enrolledAt: startedEvent.enrolledAt,
+      });
     });
   }
 
@@ -316,12 +326,8 @@ export async function applyRestaurantCreateToChallenges({
   try {
     const mutation = await prisma.$transaction(async (tx): Promise<ApplyMutationResult> => {
       const progressSnapshot = await getOrEnrollProgress(tx, userId, asianTopCuisinesChallenge);
-      const hasRecordedCreateProgress =
-        progressSnapshot.progress.uniqueTargetCount > 0 ||
-        progressSnapshot.progress.unlockedCountryCodes.length > 0;
       const shouldAttemptCount =
         progressSnapshot.didEnroll ||
-        hasRecordedCreateProgress ||
         createdAt.getTime() > progressSnapshot.progress.enrolledAt.getTime();
 
       const incrementResult = shouldAttemptCount
@@ -397,19 +403,24 @@ export async function applyRestaurantCreateToChallenges({
     });
 
     if (mutation.didEnroll && mutation.enrolledAt) {
-      emitChallengeStarted({
-        userId,
-        challengeId: asianTopCuisinesChallenge.id,
-        enrolledAt: mutation.enrolledAt,
+      const enrolledAt = mutation.enrolledAt;
+      runMetricHook("challenge_started", () => {
+        emitChallengeStarted({
+          userId,
+          challengeId: asianTopCuisinesChallenge.id,
+          enrolledAt,
+        });
       });
     }
 
     for (const achievementKey of mutation.newlyUnlockedKeys) {
-      emitAchievementUnlocked({
-        userId,
-        challengeId: asianTopCuisinesChallenge.id,
-        achievementKey,
-        unlockedAt: new Date(),
+      runMetricHook("achievement_unlocked", () => {
+        emitAchievementUnlocked({
+          userId,
+          challengeId: asianTopCuisinesChallenge.id,
+          achievementKey,
+          unlockedAt: new Date(),
+        });
       });
     }
 

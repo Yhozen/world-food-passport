@@ -146,6 +146,49 @@ describe("challenge service", () => {
     }
   });
 
+  test("page-enrolled flow stays strict even after prior increments", async () => {
+    const userId = randomUUID();
+    const oldRestaurantCreatedAt = new Date("2020-01-01T00:00:00.000Z");
+
+    try {
+      await prisma.restaurant.create({
+        data: buildRestaurantData({
+          userId,
+          countryCode: "JP",
+          createdAt: oldRestaurantCreatedAt,
+        }),
+      });
+
+      const enrolledSummary = await getChallengeSummaryForUser(userId);
+      const enrolled = enrolledSummary.find(
+        (item) => item.challengeId === asianTopCuisinesChallenge.id,
+      );
+
+      const enrolledAt = enrolled?.enrolledAt ?? new Date();
+
+      await applyRestaurantCreateToChallenges({
+        userId,
+        countryCode: "KR",
+        createdAt: new Date(enrolledAt.getTime() + 1),
+      });
+
+      const result = await applyRestaurantCreateToChallenges({
+        userId,
+        countryCode: "TH",
+        createdAt: enrolledAt,
+      });
+
+      const summary = await getChallengeSummaryForUser(userId);
+      const challenge = summary.find((item) => item.challengeId === asianTopCuisinesChallenge.id);
+
+      expect(result.didIncrement).toBe(false);
+      expect(challenge?.uniqueTargetCount).toBe(1);
+      expect(challenge?.unlockedCountryCodes).toEqual(["KR"]);
+    } finally {
+      await cleanupUserData(userId);
+    }
+  });
+
   test("first-touch qualifying create counts within same request", async () => {
     const userId = randomUUID();
     const createdAt = new Date();
@@ -170,6 +213,7 @@ describe("challenge service", () => {
   test("concurrent qualifying creates unlock only once", async () => {
     const userId = randomUUID();
     const createdAt = new Date();
+    const laterCreatedAt = new Date(createdAt.getTime() + 1000);
 
     try {
       await Promise.all([
@@ -181,7 +225,7 @@ describe("challenge service", () => {
         applyRestaurantCreateToChallenges({
           userId,
           countryCode: "KR",
-          createdAt,
+          createdAt: laterCreatedAt,
         }),
       ]);
 
@@ -365,6 +409,47 @@ describe("challenge service", () => {
       });
     } finally {
       unsubscribe();
+      resetChallengeMetricsListeners();
+      await cleanupUserData(userId);
+    }
+  });
+
+  test("metric listener throw does not fail challenge write path", async () => {
+    const userId = randomUUID();
+    const createdAt = new Date();
+
+    resetChallengeMetricsListeners();
+    const unsubscribeStarted = onChallengeStarted(() => {
+      throw new Error("metric-started-failed");
+    });
+    const unsubscribeUnlocked = onAchievementUnlocked(() => {
+      throw new Error("metric-unlocked-failed");
+    });
+
+    try {
+      const result = await applyRestaurantCreateToChallenges({
+        userId,
+        countryCode: "JP",
+        createdAt,
+      });
+
+      const progress = await prisma.challengeProgress.findUnique({
+        where: {
+          userId_challengeId: {
+            userId,
+            challengeId: asianTopCuisinesChallenge.id,
+          },
+        },
+      });
+
+      expect(result.warningCode).toBeNull();
+      expect(result.repairJobQueued).toBe(false);
+      expect(result.didIncrement).toBe(true);
+      expect(progress?.uniqueTargetCount).toBe(1);
+      expect(progress?.unlockedCountryCodes).toEqual(["JP"]);
+    } finally {
+      unsubscribeStarted();
+      unsubscribeUnlocked();
       resetChallengeMetricsListeners();
       await cleanupUserData(userId);
     }
