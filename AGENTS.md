@@ -132,6 +132,14 @@ Core workflow:
 3. `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
 4. Re-snapshot after page changes
 
+## Worktree Workflow
+
+- Prefer the `worktree_create` and `worktree_delete` tools over manual `git worktree` shell commands whenever worktrees are needed.
+- These tools come from `opencode-worktree` (https://github.com/kdcokenny/opencode-worktree) and should be treated as the default path for worktree lifecycle management in this repo.
+- When a worktree is created, prefer working inside the tool-opened terminal/session and use `cmux` as much as possible to manage panes, commands, and parallel work within that worktree.
+- Only fall back to manual shell-based worktree management if the dedicated tools cannot handle the required operation.
+- When discussing or documenting worktree steps, explicitly mention the tool-based flow first.
+
 ## Landing the Plane (Session Completion)
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
