@@ -26,7 +26,7 @@ vi.mock("@/trpc/server", () => ({
 }));
 
 describe("dashboard challenges page", () => {
-  test("renders asian top cuisines challenge progress card", async () => {
+  test("renders challenge summaries without hardcoded ID filtering", async () => {
     mockFetchQuery.mockResolvedValueOnce([
       {
         challengeId: "asian-top-cuisines",
@@ -39,6 +39,19 @@ describe("dashboard challenges page", () => {
         enrolledAt: new Date("2026-01-01T00:00:00.000Z"),
         uniqueTargetCount: 2,
         unlockedCountryCodes: ["JP", "KR"],
+        unlockedAchievements: ["milestone_1"],
+      },
+      {
+        challengeId: "latin-top-cuisines",
+        title: "Latin top cuisines",
+        description: "Visit major Latin cuisine countries.",
+        targetCountryCodes: ["MX", "PE"],
+        milestones: [1, 2],
+        completionThreshold: 2,
+        completionUnlockKey: "completion",
+        enrolledAt: null,
+        uniqueTargetCount: 1,
+        unlockedCountryCodes: ["MX"],
         unlockedAchievements: ["milestone_1"],
       },
     ]);
@@ -56,5 +69,17 @@ describe("dashboard challenges page", () => {
     expect(html).toContain("JP");
     expect(html).toContain("CN");
     expect(html).toContain("milestone_1");
+    expect(html).toContain("Latin top cuisines");
+  });
+
+  test("renders visible empty state when no summaries are returned", async () => {
+    mockFetchQuery.mockResolvedValueOnce([]);
+
+    const { default: DashboardChallengesPage } = await import(
+      "@/app/dashboard/challenges/page"
+    );
+    const html = renderToStaticMarkup(await DashboardChallengesPage());
+
+    expect(html).toContain("No active challenges yet");
   });
 });

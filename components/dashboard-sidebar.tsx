@@ -25,12 +25,6 @@ interface DashboardSidebarProps {
   };
 }
 
-const navItems = [
-  { href: "/dashboard", icon: Globe, label: "World Map" },
-  { href: "/dashboard/stats", icon: BarChart3, label: "Stats" },
-  { href: "/dashboard/challenges", icon: Trophy, label: "Challenges" },
-] as const;
-
 export function DashboardSidebar({ user }: DashboardSidebarProps) {
   const pathname = usePathname();
 
@@ -56,23 +50,42 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarMenu>
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive}
-                    tooltip={item.label}
-                  >
-                    <Link href={item.href as never}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/dashboard"}
+                tooltip="World Map"
+              >
+                <Link href={{ pathname: "/dashboard" }}>
+                  <Globe />
+                  <span>World Map</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/dashboard/stats"}
+                tooltip="Stats"
+              >
+                <Link href={{ pathname: "/dashboard/stats" }}>
+                  <BarChart3 />
+                  <span>Stats</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/dashboard/challenges"}
+                tooltip="Challenges"
+              >
+                <Link href={{ pathname: "/dashboard/challenges" }}>
+                  <Trophy />
+                  <span>Challenges</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

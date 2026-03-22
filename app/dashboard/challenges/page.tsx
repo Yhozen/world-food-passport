@@ -13,14 +13,6 @@ export default async function DashboardChallengesPage() {
     trpc.challenges.getV1Summary.queryOptions(),
   );
 
-  const asianTopCuisinesChallenge = challenges.find(
-    (challenge) => challenge.challengeId === "asian-top-cuisines",
-  );
-
-  if (!asianTopCuisinesChallenge) {
-    return null;
-  }
-
   return (
     <div
       className={`${dmSans.className} min-h-screen bg-[radial-gradient(70%_80%_at_50%_0%,#fff7e6_0%,#f4f1ea_55%,#efe8dc_100%)] text-slate-950`}
@@ -36,9 +28,17 @@ export default async function DashboardChallengesPage() {
           </p>
         </section>
 
-        <section className="mt-8">
-          <ChallengesContent challenge={asianTopCuisinesChallenge} />
-        </section>
+        {challenges.length === 0 ? (
+          <section className="mt-8 rounded-3xl border border-slate-200 bg-white/80 p-6 text-sm text-slate-600 shadow-sm">
+            No active challenges yet.
+          </section>
+        ) : (
+          <section className="mt-8 space-y-4">
+            {challenges.map((challenge) => (
+              <ChallengesContent key={challenge.challengeId} challenge={challenge} />
+            ))}
+          </section>
+        )}
       </div>
     </div>
   );
