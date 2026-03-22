@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
-import { BarChart3, Globe, Lock, LogOut, Utensils } from "lucide-react";
+import { BarChart3, Globe, Lock, LogOut, Trophy, Utensils } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -28,6 +28,7 @@ interface DashboardSidebarProps {
 const navItems = [
   { href: "/dashboard", icon: Globe, label: "World Map" },
   { href: "/dashboard/stats", icon: BarChart3, label: "Stats" },
+  { href: "/dashboard/challenges", icon: Trophy, label: "Challenges" },
 ] as const;
 
 export function DashboardSidebar({ user }: DashboardSidebarProps) {
@@ -64,7 +65,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                     isActive={isActive}
                     tooltip={item.label}
                   >
-                    <Link href={item.href}>
+                    <Link href={item.href as never}>
                       <item.icon />
                       <span>{item.label}</span>
                     </Link>
