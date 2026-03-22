@@ -109,6 +109,43 @@ describe("challenge service", () => {
     }
   });
 
+  test("page-visit enrollment does not count when createdAt <= enrolledAt", async () => {
+    const userId = randomUUID();
+    const oldRestaurantCreatedAt = new Date("2020-01-01T00:00:00.000Z");
+
+    try {
+      await prisma.restaurant.create({
+        data: buildRestaurantData({
+          userId,
+          countryCode: "JP",
+          createdAt: oldRestaurantCreatedAt,
+        }),
+      });
+
+      const enrolledSummary = await getChallengeSummaryForUser(userId);
+      const enrolled = enrolledSummary.find(
+        (item) => item.challengeId === asianTopCuisinesChallenge.id,
+      );
+
+      expect(enrolled?.enrolledAt).toBeTruthy();
+
+      const result = await applyRestaurantCreateToChallenges({
+        userId,
+        countryCode: "KR",
+        createdAt: enrolled?.enrolledAt ?? new Date(),
+      });
+
+      const summary = await getChallengeSummaryForUser(userId);
+      const challenge = summary.find((item) => item.challengeId === asianTopCuisinesChallenge.id);
+
+      expect(result.didIncrement).toBe(false);
+      expect(challenge?.uniqueTargetCount).toBe(0);
+      expect(challenge?.unlockedCountryCodes).toEqual([]);
+    } finally {
+      await cleanupUserData(userId);
+    }
+  });
+
   test("first-touch qualifying create counts within same request", async () => {
     const userId = randomUUID();
     const createdAt = new Date();

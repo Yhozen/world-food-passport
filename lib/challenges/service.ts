@@ -316,7 +316,13 @@ export async function applyRestaurantCreateToChallenges({
   try {
     const mutation = await prisma.$transaction(async (tx): Promise<ApplyMutationResult> => {
       const progressSnapshot = await getOrEnrollProgress(tx, userId, asianTopCuisinesChallenge);
-      const shouldAttemptCount = true;
+      const hasRecordedCreateProgress =
+        progressSnapshot.progress.uniqueTargetCount > 0 ||
+        progressSnapshot.progress.unlockedCountryCodes.length > 0;
+      const shouldAttemptCount =
+        progressSnapshot.didEnroll ||
+        hasRecordedCreateProgress ||
+        createdAt.getTime() > progressSnapshot.progress.enrolledAt.getTime();
 
       const incrementResult = shouldAttemptCount
         ? await tx.challengeProgress.updateMany({
