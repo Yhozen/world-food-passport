@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState, useTransition } from "react";
 import type { FormEvent } from "react";
 import { Link2, Loader2, Lock, Star } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,19 @@ interface AddRestaurantModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+}
+
+interface ChallengeUnlockPayload {
+  challengeId: string;
+  newlyUnlockedKeys: string[];
+}
+
+export function showChallengeUnlockToast(
+  challengeUnlock: ChallengeUnlockPayload | undefined,
+) {
+  if (!challengeUnlock?.newlyUnlockedKeys.length) return;
+
+  toast.success("Achievement unlocked");
 }
 
 export function AddRestaurantModal({
@@ -103,7 +117,7 @@ export function AddRestaurantModal({
 
     startTransition(async () => {
       try {
-        await createRestaurant.mutateAsync({
+        const result = await createRestaurant.mutateAsync({
           name,
           countryCode: country.code,
           countryName: country.name,
@@ -118,6 +132,7 @@ export function AddRestaurantModal({
           rating: rating > 0 ? rating : null,
           review: (formData.get("review") as string) || null,
         });
+        showChallengeUnlockToast(result.challengeUnlock);
         onSuccess();
       } catch (error) {
         setError(error instanceof Error ? error.message : "Unable to save restaurant");

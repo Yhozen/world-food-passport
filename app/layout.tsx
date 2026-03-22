@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { DM_Sans } from "next/font/google";
 import { TRPCReactProvider } from "@/trpc/client";
 
@@ -25,7 +26,10 @@ export default function RootLayout({
 		<html lang="en" suppressHydrationWarning>
 			<body className={`${dmSans.className} font-sans antialiased`}>
 				<AuthProvider>
-					<TRPCReactProvider>{children}</TRPCReactProvider>
+					<TRPCReactProvider>
+						{children}
+						<Toaster />
+					</TRPCReactProvider>
 				</AuthProvider>
 				<Analytics />
 			</body>
