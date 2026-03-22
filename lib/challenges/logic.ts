@@ -1,4 +1,5 @@
 import { asianTopCuisinesChallenge } from "@/lib/challenges/catalog";
+import type { ChallengeCatalogItem } from "@/lib/challenges/catalog";
 
 export interface GetNewUnlocksInput {
   previousCount: number;
@@ -9,7 +10,7 @@ export interface GetNewUnlocksInput {
 const targetCountryCodeSet = new Set(asianTopCuisinesChallenge.targetCountryCodes);
 
 export function normalizeCountryCode(value: string | null | undefined): string {
-  return value?.toUpperCase() ?? "";
+  return value?.trim().toUpperCase() ?? "";
 }
 
 export function isTargetCountry(countryCode: string | null | undefined): boolean {
@@ -18,6 +19,10 @@ export function isTargetCountry(countryCode: string | null | undefined): boolean
 
 function getMilestoneUnlockKey(milestone: number): string {
   return `milestone_${milestone}`;
+}
+
+export function getCompletionThreshold(challenge: ChallengeCatalogItem): number {
+  return challenge.completionThreshold ?? challenge.targetCountryCodes.length;
 }
 
 export function getNewUnlocks({
@@ -39,7 +44,7 @@ export function getNewUnlocks({
     }
   }
 
-  const completionMilestone = Math.max(...asianTopCuisinesChallenge.milestones);
+  const completionMilestone = getCompletionThreshold(asianTopCuisinesChallenge);
   const crossedCompletion =
     previousCount < completionMilestone && nextCount >= completionMilestone;
 
