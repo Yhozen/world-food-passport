@@ -368,6 +368,12 @@ describe("challenge service", () => {
         createdAt,
       });
 
+      await applyRestaurantCreateToChallenges({
+        userId,
+        countryCode: "KR",
+        createdAt: new Date(createdAt.getTime() + 1),
+      });
+
       expect(events).toEqual([
         {
           userId,
@@ -402,11 +408,40 @@ describe("challenge service", () => {
         createdAt,
       });
 
-      expect(events).toContainEqual({
+      const secondCreatedAt = new Date(Date.now() + 1000);
+      const thirdCreatedAt = new Date(Date.now() + 2000);
+      const duplicateCreatedAt = new Date(Date.now() + 3000);
+
+      await applyRestaurantCreateToChallenges({
         userId,
-        challengeId: asianTopCuisinesChallenge.id,
-        achievementKey: "milestone_1",
+        countryCode: "KR",
+        createdAt: secondCreatedAt,
       });
+
+      await applyRestaurantCreateToChallenges({
+        userId,
+        countryCode: "TH",
+        createdAt: thirdCreatedAt,
+      });
+
+      await applyRestaurantCreateToChallenges({
+        userId,
+        countryCode: "KR",
+        createdAt: duplicateCreatedAt,
+      });
+
+      expect(events).toEqual([
+        {
+          userId,
+          challengeId: asianTopCuisinesChallenge.id,
+          achievementKey: "milestone_1",
+        },
+        {
+          userId,
+          challengeId: asianTopCuisinesChallenge.id,
+          achievementKey: "milestone_3",
+        },
+      ]);
     } finally {
       unsubscribe();
       resetChallengeMetricsListeners();
