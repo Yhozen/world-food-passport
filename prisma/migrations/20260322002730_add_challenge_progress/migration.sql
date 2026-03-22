@@ -4,7 +4,7 @@ CREATE TABLE "challenge_progress" (
     "user_id" UUID NOT NULL,
     "challenge_id" TEXT NOT NULL,
     "enrolled_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "unlocked_country_codes" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "unlocked_country_codes" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
     "unique_target_count" INTEGER NOT NULL DEFAULT 0,
     "completed_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -30,7 +30,7 @@ CREATE TABLE "challenge_repair_jobs" (
     "user_id" UUID NOT NULL,
     "challenge_id" TEXT NOT NULL,
     "reason" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'queued',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
