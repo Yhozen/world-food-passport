@@ -5,7 +5,7 @@ CREATE TABLE "challenge_progress" (
     "challenge_id" TEXT NOT NULL,
     "enrolled_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "unlocked_country_codes" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
-    "unique_target_count" INTEGER NOT NULL,
+    "unique_target_count" INTEGER NOT NULL DEFAULT 0,
     "completed_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,

@@ -24,6 +24,28 @@ describe("challenge persistence service contract", () => {
     expect(record.completedAt).toBeNull();
   });
 
+  test("enrollChallengeProgress upserts duplicate user challenge enrollment into one logical row", async () => {
+    const firstRecord = await enrollChallengeProgress({
+      userId: "22222222-2222-2222-2222-222222222222",
+      challengeId: "asian-top-cuisines",
+      uniqueTargetCount: 3,
+      unlockedCountryCodes: ["JP"],
+    });
+
+    const secondRecord = await enrollChallengeProgress({
+      userId: "22222222-2222-2222-2222-222222222222",
+      challengeId: "asian-top-cuisines",
+      uniqueTargetCount: 6,
+      unlockedCountryCodes: ["JP", "TH", "VN"],
+    });
+
+    expect(secondRecord.id).toBe(firstRecord.id);
+    expect(secondRecord.userId).toBe("22222222-2222-2222-2222-222222222222");
+    expect(secondRecord.challengeId).toBe("asian-top-cuisines");
+    expect(secondRecord.uniqueTargetCount).toBe(6);
+    expect(secondRecord.unlockedCountryCodes).toEqual(["JP", "TH", "VN"]);
+  });
+
   test("listChallengeAchievementUnlocks resolves unique achievement keys per user challenge", async () => {
     const unlocks = await listChallengeAchievementUnlocks({
       userId: "11111111-1111-1111-1111-111111111111",
