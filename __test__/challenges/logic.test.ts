@@ -18,28 +18,28 @@ describe("challenge catalog", () => {
 });
 
 describe("challenge logic", () => {
-  test("normalizes lowercase alpha-2 code to uppercase", () => {
-    expect(normalizeCountryCode("jp")).toBe("JP");
+  test("normalizes lowercase alpha-3 code to uppercase", () => {
+    expect(normalizeCountryCode("jpn")).toBe("JPN");
   });
 
   test("normalizes whitespace and nullish inputs safely", () => {
-    expect(normalizeCountryCode(" jp ")).toBe("JP");
+    expect(normalizeCountryCode(" jpn ")).toBe("JPN");
     expect(normalizeCountryCode("   ")).toBe("");
     expect(normalizeCountryCode(null)).toBe("");
     expect(normalizeCountryCode(undefined)).toBe("");
   });
 
-  test("checks target country using strict alpha-2 codes", () => {
-    expect(isTargetCountry("JP")).toBe(true);
-    expect(isTargetCountry(" jp ")).toBe(true);
-    expect(isTargetCountry("JPN")).toBe(false);
+  test("checks target country using strict alpha-3 codes", () => {
+    expect(isTargetCountry("JPN")).toBe(true);
+    expect(isTargetCountry(" jpn ")).toBe(true);
+    expect(isTargetCountry("JP")).toBe(false);
     expect(isTargetCountry("US")).toBe(false);
   });
 
   test("derives completion threshold from target country count by default", () => {
     expect(
       getCompletionThreshold({
-        targetCountryCodes: ["JP", "KR", "TH"],
+        targetCountryCodes: ["JPN", "KOR", "THA"],
         milestones: [1],
         id: "test",
         title: "Test",

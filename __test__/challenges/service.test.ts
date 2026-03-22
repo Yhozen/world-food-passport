@@ -45,13 +45,13 @@ describe("challenge service", () => {
     try {
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "JP",
+        countryCode: "JPN",
         createdAt,
       });
 
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "JP",
+        countryCode: "JPN",
         createdAt: new Date(createdAt.getTime() + 1000),
       });
 
@@ -65,7 +65,7 @@ describe("challenge service", () => {
       });
 
       expect(progress?.uniqueTargetCount).toBe(1);
-      expect(progress?.unlockedCountryCodes).toEqual(["JP"]);
+      expect(progress?.unlockedCountryCodes).toEqual(["JPN"]);
     } finally {
       await cleanupUserData(userId);
     }
@@ -79,7 +79,7 @@ describe("challenge service", () => {
       await prisma.restaurant.create({
         data: buildRestaurantData({
           userId,
-          countryCode: "JP",
+          countryCode: "JPN",
           createdAt: oldRestaurantCreatedAt,
         }),
       });
@@ -95,7 +95,7 @@ describe("challenge service", () => {
       const createAfterEnrollmentAt = new Date((enrolled?.enrolledAt ?? new Date()).getTime() + 1);
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "KR",
+        countryCode: "KOR",
         createdAt: createAfterEnrollmentAt,
       });
 
@@ -103,7 +103,7 @@ describe("challenge service", () => {
       const challenge = summary.find((item) => item.challengeId === asianTopCuisinesChallenge.id);
 
       expect(challenge?.uniqueTargetCount).toBe(1);
-      expect(challenge?.unlockedCountryCodes).toEqual(["KR"]);
+      expect(challenge?.unlockedCountryCodes).toEqual(["KOR"]);
     } finally {
       await cleanupUserData(userId);
     }
@@ -117,7 +117,7 @@ describe("challenge service", () => {
       await prisma.restaurant.create({
         data: buildRestaurantData({
           userId,
-          countryCode: "JP",
+          countryCode: "JPN",
           createdAt: oldRestaurantCreatedAt,
         }),
       });
@@ -131,7 +131,7 @@ describe("challenge service", () => {
 
       const result = await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "KR",
+        countryCode: "KOR",
         createdAt: enrolled?.enrolledAt ?? new Date(),
       });
 
@@ -154,7 +154,7 @@ describe("challenge service", () => {
       await prisma.restaurant.create({
         data: buildRestaurantData({
           userId,
-          countryCode: "JP",
+          countryCode: "JPN",
           createdAt: oldRestaurantCreatedAt,
         }),
       });
@@ -168,13 +168,13 @@ describe("challenge service", () => {
 
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "KR",
+        countryCode: "KOR",
         createdAt: new Date(enrolledAt.getTime() + 1),
       });
 
       const result = await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "TH",
+        countryCode: "THA",
         createdAt: enrolledAt,
       });
 
@@ -183,7 +183,7 @@ describe("challenge service", () => {
 
       expect(result.didIncrement).toBe(false);
       expect(challenge?.uniqueTargetCount).toBe(1);
-      expect(challenge?.unlockedCountryCodes).toEqual(["KR"]);
+      expect(challenge?.unlockedCountryCodes).toEqual(["KOR"]);
     } finally {
       await cleanupUserData(userId);
     }
@@ -196,7 +196,7 @@ describe("challenge service", () => {
     try {
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "TH",
+        countryCode: "THA",
         createdAt,
       });
 
@@ -204,7 +204,7 @@ describe("challenge service", () => {
       const challenge = summary.find((item) => item.challengeId === asianTopCuisinesChallenge.id);
 
       expect(challenge?.uniqueTargetCount).toBe(1);
-      expect(challenge?.unlockedCountryCodes).toEqual(["TH"]);
+      expect(challenge?.unlockedCountryCodes).toEqual(["THA"]);
     } finally {
       await cleanupUserData(userId);
     }
@@ -219,12 +219,12 @@ describe("challenge service", () => {
       await Promise.all([
         applyRestaurantCreateToChallenges({
           userId,
-          countryCode: "JP",
+          countryCode: "JPN",
           createdAt,
         }),
         applyRestaurantCreateToChallenges({
           userId,
-          countryCode: "KR",
+          countryCode: "KOR",
           createdAt: laterCreatedAt,
         }),
       ]);
@@ -248,7 +248,7 @@ describe("challenge service", () => {
 
       expect(unlocks).toHaveLength(1);
       expect(progress?.uniqueTargetCount).toBe(2);
-      expect(new Set(progress?.unlockedCountryCodes ?? [])).toEqual(new Set(["JP", "KR"]));
+      expect(new Set(progress?.unlockedCountryCodes ?? [])).toEqual(new Set(["JPN", "KOR"]));
     } finally {
       await cleanupUserData(userId);
     }
@@ -262,12 +262,12 @@ describe("challenge service", () => {
       await Promise.all([
         applyRestaurantCreateToChallenges({
           userId,
-          countryCode: "JP",
+          countryCode: "JPN",
           createdAt,
         }),
         applyRestaurantCreateToChallenges({
           userId,
-          countryCode: "JP",
+          countryCode: "JPN",
           createdAt: new Date(createdAt.getTime() + 1),
         }),
       ]);
@@ -290,7 +290,7 @@ describe("challenge service", () => {
       });
 
       expect(progress?.uniqueTargetCount).toBe(1);
-      expect(progress?.unlockedCountryCodes).toEqual(["JP"]);
+      expect(progress?.unlockedCountryCodes).toEqual(["JPN"]);
       expect(unlocks).toHaveLength(1);
     } finally {
       await cleanupUserData(userId);
@@ -305,14 +305,14 @@ describe("challenge service", () => {
       const restaurant = await prisma.restaurant.create({
         data: buildRestaurantData({
           userId,
-          countryCode: "IN",
+          countryCode: "IND",
           createdAt,
         }),
       });
 
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "IN",
+        countryCode: "IND",
         createdAt,
       });
 
@@ -322,7 +322,7 @@ describe("challenge service", () => {
       const challenge = summary.find((item) => item.challengeId === asianTopCuisinesChallenge.id);
 
       expect(challenge?.uniqueTargetCount).toBe(1);
-      expect(challenge?.unlockedCountryCodes).toEqual(["IN"]);
+      expect(challenge?.unlockedCountryCodes).toEqual(["IND"]);
     } finally {
       await cleanupUserData(userId);
     }
@@ -339,7 +339,7 @@ describe("challenge service", () => {
     try {
       const result = await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "JP",
+        countryCode: "JPN",
         createdAt,
       });
 
@@ -364,13 +364,13 @@ describe("challenge service", () => {
     try {
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "JP",
+        countryCode: "JPN",
         createdAt,
       });
 
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "KR",
+        countryCode: "KOR",
         createdAt: new Date(createdAt.getTime() + 1),
       });
 
@@ -404,7 +404,7 @@ describe("challenge service", () => {
     try {
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "JP",
+        countryCode: "JPN",
         createdAt,
       });
 
@@ -414,19 +414,19 @@ describe("challenge service", () => {
 
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "KR",
+        countryCode: "KOR",
         createdAt: secondCreatedAt,
       });
 
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "TH",
+        countryCode: "THA",
         createdAt: thirdCreatedAt,
       });
 
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "KR",
+        countryCode: "KOR",
         createdAt: duplicateCreatedAt,
       });
 
@@ -464,7 +464,7 @@ describe("challenge service", () => {
     try {
       const result = await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "JP",
+        countryCode: "JPN",
         createdAt,
       });
 
@@ -481,7 +481,7 @@ describe("challenge service", () => {
       expect(result.repairJobQueued).toBe(false);
       expect(result.didIncrement).toBe(true);
       expect(progress?.uniqueTargetCount).toBe(1);
-      expect(progress?.unlockedCountryCodes).toEqual(["JP"]);
+      expect(progress?.unlockedCountryCodes).toEqual(["JPN"]);
     } finally {
       unsubscribeStarted();
       unsubscribeUnlocked();
@@ -501,7 +501,7 @@ describe("challenge service", () => {
     try {
       await applyRestaurantCreateToChallenges({
         userId,
-        countryCode: "JP",
+        countryCode: "JPN",
         createdAt,
       });
 

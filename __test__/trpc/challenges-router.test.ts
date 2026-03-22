@@ -34,7 +34,7 @@ describe("challenges router", () => {
         challengeId: asianTopCuisinesChallenge.id,
         enrolledAt,
         uniqueTargetCount: 2,
-        unlockedCountryCodes: ["JP", "KR"],
+        unlockedCountryCodes: ["JPN", "KOR"],
         unlockedAchievements: ["milestone_1"],
       },
     ]);
@@ -52,7 +52,7 @@ describe("challenges router", () => {
         completionUnlockKey: asianTopCuisinesChallenge.completionUnlockKey,
         enrolledAt,
         uniqueTargetCount: 2,
-        unlockedCountryCodes: ["JP", "KR"],
+        unlockedCountryCodes: ["JPN", "KOR"],
         unlockedAchievements: ["milestone_1"],
       },
     ]);

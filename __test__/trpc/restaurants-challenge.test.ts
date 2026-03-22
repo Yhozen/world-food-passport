@@ -66,7 +66,7 @@ describe("restaurants router challenge integration", () => {
 
     const result = await caller.create({
       name: "Ramen Place",
-      countryCode: "JP",
+      countryCode: "JPN",
       countryName: "Japan",
       city: "Tokyo",
       address: null,
@@ -90,7 +90,7 @@ describe("restaurants router challenge integration", () => {
     });
     expect(applyRestaurantCreateToChallenges).toHaveBeenCalledWith({
       userId,
-      countryCode: "JP",
+      countryCode: "JPN",
       createdAt,
     });
   });

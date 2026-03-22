@@ -13,7 +13,7 @@ export const asianTopCuisinesChallenge: ChallengeCatalogItem = {
   title: "Asian Top Cuisines",
   description:
     "Unlock this challenge by logging dishes from China, Japan, Korea, Thailand, and India.",
-  targetCountryCodes: ["CN", "JP", "KR", "TH", "IN"],
+  targetCountryCodes: ["CHN", "JPN", "KOR", "THA", "IND"],
   milestones: [1, 3, 5],
   completionThreshold: 5,
   completionUnlockKey: "completion",

@@ -32,13 +32,13 @@ describe("dashboard challenges page", () => {
         challengeId: "asian-top-cuisines",
         title: "Asian top cuisines",
         description: "Visit major Asian cuisine countries.",
-        targetCountryCodes: ["CN", "JP", "KR", "TH", "IN"],
+        targetCountryCodes: ["CHN", "JPN", "KOR", "THA", "IND"],
         milestones: [1, 3, 5],
         completionThreshold: 5,
         completionUnlockKey: "completion",
         enrolledAt: new Date("2026-01-01T00:00:00.000Z"),
         uniqueTargetCount: 2,
-        unlockedCountryCodes: ["JP", "KR"],
+        unlockedCountryCodes: ["JPN", "KOR"],
         unlockedAchievements: ["milestone_1"],
       },
       {
@@ -66,8 +66,8 @@ describe("dashboard challenges page", () => {
 
     expect(html).toContain("Asian top cuisines");
     expect(html).toContain("2 / 5 countries");
-    expect(html).toContain("JP");
-    expect(html).toContain("CN");
+    expect(html).toContain("JPN");
+    expect(html).toContain("CHN");
     expect(html).toContain("milestone_1");
     expect(html).toContain("Latin top cuisines");
   });
