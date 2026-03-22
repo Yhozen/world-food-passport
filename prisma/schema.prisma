@@ -131,7 +131,7 @@ model ChallengeRepairJob {
   userId      String   @map("user_id") @db.Uuid
   challengeId String   @map("challenge_id")
   reason      String
-  status      String   @default("queued")
+  status      String
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 

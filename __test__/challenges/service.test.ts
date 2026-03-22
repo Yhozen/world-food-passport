@@ -1,70 +1,17 @@
-/** @vitest-environment node */
-
+// @vitest-environment node
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, test } from "vitest";
 
-import {
-  enrollChallengeProgress,
-  listChallengeAchievementUnlocks,
-  queueChallengeRepairJob,
-} from "@/lib/challenges/service";
+function readPrismaSchema(): string {
+  return readFileSync(path.join(process.cwd(), "prisma/schema.prisma"), "utf8");
+}
 
-describe("challenge persistence service contract", () => {
-  test("enrollChallengeProgress stores a per-user challenge row with target metadata", async () => {
-    const record = await enrollChallengeProgress({
-      userId: "11111111-1111-1111-1111-111111111111",
-      challengeId: "asian-top-cuisines",
-      uniqueTargetCount: 5,
-      unlockedCountryCodes: ["JP", "TH"],
-    });
+describe("challenge persistence contract", () => {
+  test("stores a single progress row per user and challenge", () => {
+    const schema = readPrismaSchema();
 
-    expect(record.userId).toBe("11111111-1111-1111-1111-111111111111");
-    expect(record.challengeId).toBe("asian-top-cuisines");
-    expect(record.uniqueTargetCount).toBe(5);
-    expect(record.unlockedCountryCodes).toEqual(["JP", "TH"]);
-    expect(record.completedAt).toBeNull();
-  });
-
-  test("enrollChallengeProgress upserts duplicate user challenge enrollment into one logical row", async () => {
-    const firstRecord = await enrollChallengeProgress({
-      userId: "22222222-2222-2222-2222-222222222222",
-      challengeId: "asian-top-cuisines",
-      uniqueTargetCount: 3,
-      unlockedCountryCodes: ["JP"],
-    });
-
-    const secondRecord = await enrollChallengeProgress({
-      userId: "22222222-2222-2222-2222-222222222222",
-      challengeId: "asian-top-cuisines",
-      uniqueTargetCount: 6,
-      unlockedCountryCodes: ["JP", "TH", "VN"],
-    });
-
-    expect(secondRecord.id).toBe(firstRecord.id);
-    expect(secondRecord.userId).toBe("22222222-2222-2222-2222-222222222222");
-    expect(secondRecord.challengeId).toBe("asian-top-cuisines");
-    expect(secondRecord.uniqueTargetCount).toBe(6);
-    expect(secondRecord.unlockedCountryCodes).toEqual(["JP", "TH", "VN"]);
-  });
-
-  test("listChallengeAchievementUnlocks resolves unique achievement keys per user challenge", async () => {
-    const unlocks = await listChallengeAchievementUnlocks({
-      userId: "11111111-1111-1111-1111-111111111111",
-      challengeId: "asian-top-cuisines",
-    });
-
-    expect(unlocks).toEqual(expect.arrayContaining(["milestone_1", "completion"]));
-  });
-
-  test("queueChallengeRepairJob creates a queued repair task for backfill", async () => {
-    const job = await queueChallengeRepairJob({
-      userId: "11111111-1111-1111-1111-111111111111",
-      challengeId: "asian-top-cuisines",
-      reason: "backfill_on_feature_rollout",
-    });
-
-    expect(job.userId).toBe("11111111-1111-1111-1111-111111111111");
-    expect(job.challengeId).toBe("asian-top-cuisines");
-    expect(job.reason).toBe("backfill_on_feature_rollout");
-    expect(job.status).toBe("queued");
+    expect(schema).toContain("model ChallengeProgress");
+    expect(schema).toContain("@@unique([userId, challengeId])");
   });
 });

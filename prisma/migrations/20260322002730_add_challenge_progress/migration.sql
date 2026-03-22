@@ -4,7 +4,7 @@ CREATE TABLE "challenge_progress" (
     "user_id" UUID NOT NULL,
     "challenge_id" TEXT NOT NULL,
     "enrolled_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "unlocked_country_codes" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+    "unlocked_country_codes" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "unique_target_count" INTEGER NOT NULL DEFAULT 0,
     "completed_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -30,7 +30,7 @@ CREATE TABLE "challenge_repair_jobs" (
     "user_id" UUID NOT NULL,
     "challenge_id" TEXT NOT NULL,
     "reason" TEXT NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'queued',
+    "status" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -41,4 +41,4 @@ CREATE TABLE "challenge_repair_jobs" (
 CREATE UNIQUE INDEX "challenge_progress_user_id_challenge_id_key" ON "challenge_progress"("user_id", "challenge_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "challenge_achievement_unlocks_user_id_challenge_id_achievement_key_key" ON "challenge_achievement_unlocks"("user_id", "challenge_id", "achievement_key");
+CREATE UNIQUE INDEX "challenge_achievement_unlocks_user_id_challenge_id_achievem_key" ON "challenge_achievement_unlocks"("user_id", "challenge_id", "achievement_key");
