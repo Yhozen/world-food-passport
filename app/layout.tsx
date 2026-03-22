@@ -7,45 +7,28 @@ import { DM_Sans } from "next/font/google";
 import { TRPCReactProvider } from "@/trpc/client";
 
 const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+	subsets: ["latin"],
+	weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "World Food Passport",
-  description: "World Food Passport",
-  icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
-  },
+	title: "World Food Passport",
+	description: "World Food Passport",
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className={`${dmSans.className} font-sans antialiased`}>
-        <AuthProvider>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-        </AuthProvider>
-        <Analytics />
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en" suppressHydrationWarning>
+			<body className={`${dmSans.className} font-sans antialiased`}>
+				<AuthProvider>
+					<TRPCReactProvider>{children}</TRPCReactProvider>
+				</AuthProvider>
+				<Analytics />
+			</body>
+		</html>
+	);
 }
