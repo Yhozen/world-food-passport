@@ -1,0 +1,16 @@
+{
+	"$schema": "https://registry.kdco.dev/schemas/worktree.json",
+	"sync": {
+		"copyFiles": [".env", ".env.local"],
+		"symlinkDirs": ["node_modules"],
+		// Patterns to exclude
+		"exclude": []
+	},
+
+	"hooks": {
+		// Run after creation
+		"postCreate": ["bun install"],
+		// Run before deletion
+		"preDelete": []
+	}
+}
