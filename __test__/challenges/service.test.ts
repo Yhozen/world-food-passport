@@ -156,6 +156,60 @@ describe("challenge service", () => {
         },
       });
 
+      const progress = await prisma.challengeProgress.findUnique({
+        where: {
+          userId_challengeId: {
+            userId,
+            challengeId: asianTopCuisinesChallenge.id,
+          },
+        },
+      });
+
+      expect(unlocks).toHaveLength(1);
+      expect(progress?.uniqueTargetCount).toBe(2);
+      expect(new Set(progress?.unlockedCountryCodes ?? [])).toEqual(new Set(["JP", "KR"]));
+    } finally {
+      await cleanupUserData(userId);
+    }
+  });
+
+  test("concurrent same-country creates stay idempotent", async () => {
+    const userId = randomUUID();
+    const createdAt = new Date();
+
+    try {
+      await Promise.all([
+        applyRestaurantCreateToChallenges({
+          userId,
+          countryCode: "JP",
+          createdAt,
+        }),
+        applyRestaurantCreateToChallenges({
+          userId,
+          countryCode: "JP",
+          createdAt: new Date(createdAt.getTime() + 1),
+        }),
+      ]);
+
+      const progress = await prisma.challengeProgress.findUnique({
+        where: {
+          userId_challengeId: {
+            userId,
+            challengeId: asianTopCuisinesChallenge.id,
+          },
+        },
+      });
+
+      const unlocks = await prisma.challengeAchievementUnlock.findMany({
+        where: {
+          userId,
+          challengeId: asianTopCuisinesChallenge.id,
+          achievementKey: "milestone_1",
+        },
+      });
+
+      expect(progress?.uniqueTargetCount).toBe(1);
+      expect(progress?.unlockedCountryCodes).toEqual(["JP"]);
       expect(unlocks).toHaveLength(1);
     } finally {
       await cleanupUserData(userId);

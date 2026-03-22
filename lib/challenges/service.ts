@@ -188,15 +188,15 @@ async function enrollOnReadIfQualified(
     return { enrolledAt: existing.enrolledAt, didEnroll: false };
   }
 
-  const hasQualifyingRestaurant = await tx.restaurant.findFirst({
-    where: {
-      userId,
-      countryCode: {
-        in: challenge.targetCountryCodes,
-      },
-    },
-    select: { id: true },
+  const normalizedTargetCountries = new Set(dedupeNormalizedCountryCodes(challenge.targetCountryCodes));
+  const countries = await tx.restaurant.findMany({
+    where: { userId },
+    select: { countryCode: true },
   });
+
+  const hasQualifyingRestaurant = countries.some((country) =>
+    normalizedTargetCountries.has(normalizeCountryCode(country.countryCode)),
+  );
 
   if (!hasQualifyingRestaurant) {
     return { enrolledAt: null, didEnroll: false };
@@ -316,43 +316,56 @@ export async function applyRestaurantCreateToChallenges({
   try {
     const mutation = await prisma.$transaction(async (tx): Promise<ApplyMutationResult> => {
       const progressSnapshot = await getOrEnrollProgress(tx, userId, asianTopCuisinesChallenge);
-      const hadCountry = progressSnapshot.progress.unlockedCountryCodes.includes(normalizedCountryCode);
+      const shouldAttemptCount = true;
 
-      const shouldCount =
-        !hadCountry &&
-        (progressSnapshot.didEnroll || createdAt.getTime() > progressSnapshot.progress.enrolledAt.getTime());
-
-      const nextUnlockedCountryCodes = shouldCount
-        ? [...progressSnapshot.progress.unlockedCountryCodes, normalizedCountryCode]
-        : progressSnapshot.progress.unlockedCountryCodes;
-      const nextUniqueTargetCount = nextUnlockedCountryCodes.length;
-
-      if (shouldCount) {
-        await tx.challengeProgress.update({
-          where: {
-            userId_challengeId: {
+      const incrementResult = shouldAttemptCount
+        ? await tx.challengeProgress.updateMany({
+            where: {
               userId,
               challengeId: asianTopCuisinesChallenge.id,
+              NOT: {
+                unlockedCountryCodes: {
+                  has: normalizedCountryCode,
+                },
+              },
             },
-          },
-          data: {
-            unlockedCountryCodes: nextUnlockedCountryCodes,
-            uniqueTargetCount: nextUniqueTargetCount,
-          },
-        });
-      }
+            data: {
+              unlockedCountryCodes: {
+                push: normalizedCountryCode,
+              },
+              uniqueTargetCount: {
+                increment: 1,
+              },
+            },
+          })
+        : { count: 0 };
 
-      const alreadyUnlocked = await loadUnlockedAchievementKeys(
-        tx,
-        userId,
-        asianTopCuisinesChallenge.id,
-      );
-      const unlockedSet = new Set(alreadyUnlocked);
-      const newUnlockCandidates = getNewUnlocks({
-        previousCount: progressSnapshot.progress.uniqueTargetCount,
-        nextCount: nextUniqueTargetCount,
-        alreadyUnlocked,
+      const didIncrement = incrementResult.count > 0;
+
+      const latestProgress = await tx.challengeProgress.findUniqueOrThrow({
+        where: {
+          userId_challengeId: {
+            userId,
+            challengeId: asianTopCuisinesChallenge.id,
+          },
+        },
+        select: {
+          uniqueTargetCount: true,
+        },
       });
+
+      const previousCount = didIncrement
+        ? Math.max(0, latestProgress.uniqueTargetCount - 1)
+        : latestProgress.uniqueTargetCount;
+      const nextUniqueTargetCount = latestProgress.uniqueTargetCount;
+
+      const newUnlockCandidates = getNewUnlocks({
+        previousCount,
+        nextCount: nextUniqueTargetCount,
+        alreadyUnlocked: await loadUnlockedAchievementKeys(tx, userId, asianTopCuisinesChallenge.id),
+      });
+
+      const newlyUnlockedKeys: string[] = [];
 
       for (const achievementKey of newUnlockCandidates) {
         try {
@@ -363,22 +376,16 @@ export async function applyRestaurantCreateToChallenges({
               achievementKey,
             },
           });
+          newlyUnlockedKeys.push(achievementKey);
         } catch (error) {
           if (!isUniqueViolation(error)) throw error;
         }
       }
 
-      const unlockedAfterMutation = await loadUnlockedAchievementKeys(
-        tx,
-        userId,
-        asianTopCuisinesChallenge.id,
-      );
-      const newlyUnlockedKeys = unlockedAfterMutation.filter((key) => !unlockedSet.has(key));
-
       return {
         didEnroll: progressSnapshot.didEnroll,
         enrolledAt: progressSnapshot.progress.enrolledAt,
-        didIncrement: shouldCount,
+        didIncrement,
         newlyUnlockedKeys,
       };
     });
