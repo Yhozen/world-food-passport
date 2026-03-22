@@ -212,8 +212,8 @@ describe("challenge service", () => {
 
   test("concurrent qualifying creates unlock only once", async () => {
     const userId = randomUUID();
-    const createdAt = new Date();
-    const laterCreatedAt = new Date(createdAt.getTime() + 1000);
+    const createdAt = new Date("2100-01-01T00:00:00.000Z");
+    const laterCreatedAt = new Date(createdAt.getTime() + 1);
 
     try {
       await Promise.all([
