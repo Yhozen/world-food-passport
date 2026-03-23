@@ -68,6 +68,8 @@
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"@vitejs/plugin-react": "^5.1.2",
+		"eslint": "^9.17.0",
+		"eslint-config-next": "^16.2.1",
 		"jsdom": "^27.4.0",
 		"postcss": "^8.5",
 		"prisma": "6.2.1",

@@ -65,6 +65,7 @@ We use tRPC with explicit Zod input and output schemas for every procedure, and 
 ## Key Conventions
 
 - Use `bun` for all package management and script execution (not npm/yarn/pnpm).
+- **Country code standard: ALWAYS use ISO-3166-1 alpha-3 codes (e.g., `JPN`, `CHN`, `KOR`) across UI, API, DB, and business logic. Never mix alpha-2 and alpha-3.**
 - Use 'nuqs' for URL search parameter state management.
 - Optimize Web Vitals (LCP, CLS, FID).
 - Limit 'use client':

@@ -99,3 +99,41 @@ model CountriesVisited {
   @@unique([userId, countryCode])
   @@map("countries_visited")
 }
+
+model ChallengeProgress {
+  id                   String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId               String    @map("user_id") @db.Uuid
+  challengeId          String    @map("challenge_id")
+  enrolledAt           DateTime  @default(now()) @map("enrolled_at")
+  unlockedCountryCodes String[]  @default([]) @map("unlocked_country_codes")
+  uniqueTargetCount    Int       @default(0) @map("unique_target_count")
+  completedAt          DateTime? @map("completed_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  @@unique([userId, challengeId])
+  @@map("challenge_progress")
+}
+
+model ChallengeAchievementUnlock {
+  id             String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  challengeId    String   @map("challenge_id")
+  achievementKey String   @map("achievement_key")
+  unlockedAt     DateTime @default(now()) @map("unlocked_at")
+
+  @@unique([userId, challengeId, achievementKey])
+  @@map("challenge_achievement_unlocks")
+}
+
+model ChallengeRepairJob {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  challengeId String   @map("challenge_id")
+  reason      String
+  status      String   @default("queued")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("challenge_repair_jobs")
+}

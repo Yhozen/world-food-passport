@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
-import { BarChart3, Globe, Lock, LogOut, Utensils } from "lucide-react";
+import { BarChart3, Globe, Lock, LogOut, Trophy, Utensils } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -24,11 +24,6 @@ interface DashboardSidebarProps {
     email?: string | null;
   };
 }
-
-const navItems = [
-  { href: "/dashboard", icon: Globe, label: "World Map" },
-  { href: "/dashboard/stats", icon: BarChart3, label: "Stats" },
-] as const;
 
 export function DashboardSidebar({ user }: DashboardSidebarProps) {
   const pathname = usePathname();
@@ -55,23 +50,42 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarMenu>
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive}
-                    tooltip={item.label}
-                  >
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/dashboard"}
+                tooltip="World Map"
+              >
+                <Link href={{ pathname: "/dashboard" }}>
+                  <Globe />
+                  <span>World Map</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/dashboard/stats"}
+                tooltip="Stats"
+              >
+                <Link href={{ pathname: "/dashboard/stats" }}>
+                  <BarChart3 />
+                  <span>Stats</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/dashboard/challenges"}
+                tooltip="Challenges"
+              >
+                <Link href={{ pathname: "/dashboard/challenges" }}>
+                  <Trophy />
+                  <span>Challenges</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
