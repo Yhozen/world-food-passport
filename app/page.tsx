@@ -1,6 +1,8 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { Suspense, type ReactNode } from "react";
+import Link from "next/link";
+import { type CSSProperties, type ReactNode, Suspense } from "react";
+
+import { cn } from "@/lib/utils";
 
 import { AuthNavLink } from "./_components/auth-nav-link";
 import { MapExample } from "./_components/map-example";
@@ -39,6 +41,13 @@ interface TrustSignalItem {
 	description: string;
 }
 
+interface CapabilityItem {
+	title: string;
+	description: string;
+	badge: string;
+	isAvailableNow: boolean;
+}
+
 interface SectionShellProps {
 	id: string;
 	label: string;
@@ -46,6 +55,7 @@ interface SectionShellProps {
 	description: string;
 	children: ReactNode;
 	className?: string;
+	delayMs?: number;
 }
 
 const challengeItems: ChallengeItem[] = [
@@ -104,6 +114,37 @@ const trustSignalItems: TrustSignalItem[] = [
 	},
 ];
 
+const capabilityItems: CapabilityItem[] = [
+	{
+		title: "Log visits by location",
+		description:
+			"Save where you ate, what stood out, and whether you would go back.",
+		badge: "Available now",
+		isAvailableNow: true,
+	},
+	{
+		title: "See your map evolve",
+		description:
+			"Each visit updates your passport map so your food patterns are visible at a glance.",
+		badge: "Available now",
+		isAvailableNow: true,
+	},
+	{
+		title: "Keep your best picks usable",
+		description:
+			"No more digging through screenshots or group chats when choosing where to eat.",
+		badge: "Available now",
+		isAvailableNow: true,
+	},
+	{
+		title: "Challenges and shared plans",
+		description:
+			"Unlock stamp-style achievements and plan restaurant runs with friends.",
+		badge: "Coming soon",
+		isAvailableNow: false,
+	},
+];
+
 function SectionShell({
 	id,
 	label,
@@ -111,12 +152,19 @@ function SectionShell({
 	description,
 	children,
 	className,
+	delayMs,
 }: SectionShellProps) {
+	const animationStyle: CSSProperties = {
+		animationDelay: delayMs ? `${delayMs}ms` : undefined,
+		animationFillMode: "both",
+	};
+
 	return (
 		<section
 			id={id}
 			aria-labelledby={`${id}-title`}
-			className={`border-t border-[#D3DAE6] pt-10 sm:pt-12 ${className ?? ""}`}
+			className={`animate-in fade-in-0 slide-in-from-bottom-3 border-t border-[#D3DAE6] pt-10 duration-700 motion-reduce:animate-none sm:pt-12 ${className ?? ""}`}
+			style={animationStyle}
 		>
 			<p className="text-sm font-medium italic tracking-[0.01em] text-[#5B6472]">
 				{label}
@@ -139,7 +187,7 @@ export default function LandingPage() {
 	return (
 		<main className="min-h-screen bg-[#F5EFE3] text-[#1F2937]">
 			<div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 pb-20 pt-8 sm:px-6 lg:px-8">
-				<nav className="flex items-center justify-between text-sm text-[#5B6472]">
+				<nav className="animate-in fade-in-0 slide-in-from-top-2 flex items-center justify-between text-sm text-[#5B6472] duration-500 motion-reduce:animate-none">
 					<Link href="/" className="text-lg font-medium text-[#1E3557]">
 						World Food Passport
 					</Link>
@@ -157,7 +205,7 @@ export default function LandingPage() {
 				<div className="mt-10 flex flex-col gap-14 sm:mt-12 sm:gap-16 lg:gap-20">
 					<section
 						aria-labelledby="hero-title"
-						className="rounded-[30px] border border-[#E4E9F2] bg-gradient-to-b from-[#FFFDF8] to-[#FFF8EC] px-5 py-6 shadow-[0_22px_44px_-34px_rgba(30,53,87,0.5)] sm:px-8 sm:py-8 lg:px-10 lg:py-10"
+						className="animate-in fade-in-0 slide-in-from-bottom-4 rounded-[30px] border border-[#E4E9F2] bg-gradient-to-b from-[#FFFDF8] to-[#FFF8EC] px-5 py-6 shadow-[0_22px_44px_-34px_rgba(30,53,87,0.5)] duration-700 motion-reduce:animate-none sm:px-8 sm:py-8 lg:px-10 lg:py-10"
 					>
 						<p className="text-sm font-medium italic tracking-[0.01em] text-[#5B6472]">
 							Passport map tracker
@@ -177,13 +225,13 @@ export default function LandingPage() {
 								<div className="mt-7 flex flex-wrap items-center gap-3">
 									<Link
 										href="/auth/sign-up"
-										className="rounded-full bg-[#1E3557] px-6 py-3 text-sm font-medium text-white hover:bg-[#172a45]"
+										className="rounded-full bg-[#1E3557] px-6 py-3 text-sm font-medium text-white transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[#172a45]"
 									>
 										Claim Your First Stamp
 									</Link>
 									<Link
 										href="/auth/sign-in"
-										className="rounded-full border border-[#D3DAE6] bg-[#FFFDF8] px-6 py-3 text-sm font-normal text-[#1E3557] hover:border-[#B8C3D4]"
+										className="rounded-full border border-[#D3DAE6] bg-[#FFFDF8] px-6 py-3 text-sm font-normal text-[#1E3557] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[#B8C3D4]"
 									>
 										Sign In and Continue
 									</Link>
@@ -206,10 +254,14 @@ export default function LandingPage() {
 						</div>
 
 						<div className="mt-9 grid gap-3 sm:gap-4 md:grid-cols-3">
-							{trustSignalItems.map((item) => (
+							{trustSignalItems.map((item, index) => (
 								<div
 									key={item.title}
-									className="rounded-2xl border border-[#E4E9F2] bg-white px-4 py-4"
+									className="animate-in fade-in-0 slide-in-from-bottom-2 rounded-2xl border border-[#E4E9F2] bg-white px-4 py-4 duration-700 motion-reduce:animate-none"
+									style={{
+										animationDelay: `${120 + index * 80}ms`,
+										animationFillMode: "both",
+									}}
 								>
 									<p className="text-sm font-medium text-[#1E3557]">
 										{item.title}
@@ -223,10 +275,60 @@ export default function LandingPage() {
 					</section>
 
 					<SectionShell
+						id="capabilities"
+						label="What you can do"
+						title="Everything you can do from your first visit."
+						description="Log restaurants by place, see your food world on a map, and keep recommendations you can actually reuse."
+						delayMs={90}
+					>
+						<div className="grid gap-4 md:grid-cols-2 md:auto-rows-fr md:gap-5">
+							{capabilityItems.map((item, index) => (
+								<article
+									key={item.title}
+									className={cn(
+										"animate-in fade-in-0 slide-in-from-bottom-2 h-full rounded-2xl border p-5 duration-700 motion-reduce:animate-none",
+										item.isAvailableNow
+											? "border-[#E4E9F2] bg-white"
+											: "border-[#E8DAB9] bg-[#FFF9EE]",
+									)}
+									style={{
+										animationDelay: `${140 + index * 70}ms`,
+										animationFillMode: "both",
+									}}
+								>
+									<div className="flex flex-wrap items-start justify-between gap-3">
+										<h3 className="max-w-sm text-lg font-semibold leading-tight text-[#1E3557]">
+											{item.title}
+										</h3>
+										<span
+											className={cn(
+												"rounded-full px-3 py-1 text-xs font-medium",
+												item.isAvailableNow
+													? "bg-[#E9F4F4] text-[#1F5E5E]"
+													: "bg-[#D9A441]/20 text-[#7A5827]",
+											)}
+										>
+											{item.badge}
+										</span>
+									</div>
+									<p className="mt-3 text-sm leading-relaxed text-[#5B6472]">
+										{item.description}
+									</p>
+								</article>
+							))}
+						</div>
+
+						<p className="mt-5 text-sm font-medium text-[#1E3557]">
+							Start with one restaurant tonight. Your map does the rest.
+						</p>
+					</SectionShell>
+
+					<SectionShell
 						id="story"
 						label="Why this feels different"
 						title="Meals become memories when context is easy to revisit."
 						description="Most restaurant apps become long lists. World Food Passport keeps every place connected to location, so your history stays useful when you want to plan what is next."
+						delayMs={120}
 					>
 						<div className="grid gap-4 md:grid-cols-2">
 							<div className="rounded-2xl border border-[#E4E9F2] bg-white px-5 py-5">
@@ -257,6 +359,7 @@ export default function LandingPage() {
 						label="Challenges and achievements"
 						title="Challenges and achievement stamps keep your map growing."
 						description="This is the strongest next layer of the product: clear milestones that make exploration feel directed without turning it into a game overload."
+						delayMs={180}
 					>
 						<div className="rounded-[28px] border border-[#E8DAB9] bg-[#FFF9EE] p-5 sm:p-6 lg:p-8">
 							<div className="flex items-start justify-between gap-4">
@@ -297,6 +400,7 @@ export default function LandingPage() {
 						label="Shared recommendations"
 						title="Find the next spot faster with people you trust."
 						description="Recommendation quality improves when you can see where friends actually go and what they thought, without digging through old chats."
+						delayMs={240}
 					>
 						<div className="grid gap-4 md:grid-cols-2">
 							<div className="rounded-2xl border border-[#E4E9F2] bg-white px-5 py-5">
@@ -325,6 +429,7 @@ export default function LandingPage() {
 						label="Trust and practical details"
 						title="Quick answers before your first stamp."
 						description="Everything important up front so you can sign up with confidence."
+						delayMs={300}
 					>
 						<div className="grid gap-4">
 							{faqItems.map((item) => (
@@ -376,7 +481,7 @@ export default function LandingPage() {
 							<a
 								href="mailto:contact@worldfoodpassport.com"
 								className="hover:text-[#1E3557]"
-							>
+						>
 								Contact
 							</a>
 						</div>
