@@ -31,11 +31,22 @@ export const MapExample = () => {
     AUS: "Australia",
   };
 
+  function getPassportMapFill(iso3: string) {
+    const visitCount = exampleVisitCounts[iso3] ?? 0;
+    if (visitCount >= 5) return "#1E3557";
+    if (visitCount >= 3) return "#2E8C8C";
+    if (visitCount >= 1) return "#B4D8D8";
+    return "#F1EFE8";
+  }
+
   return (
     <ClickableWorldMapPreview
       visitedIso3={exampleVisitedIso3}
       visitCounts={exampleVisitCounts}
       nameByIso3={exampleNameByIso3}
+      selectedIso3="FRA"
+      getFill={(payload) => getPassportMapFill(payload.iso3)}
+      getStroke={() => "#DCE3EE"}
       isCountryDisabled={() => true}
       className="w-full"
     />

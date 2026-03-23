@@ -24,8 +24,7 @@ Functional rules:
 - Maintain strong contrast in all text and controls.
 
 ## 3. Typography Rules
-- **Primary UI Typeface:** DM Sans (clean, practical, highly legible).
-- **Display/Editorial Typeface:** Source Serif 4 for key headline moments and section-intro emphasis.
+- **Primary and display typeface:** DM Sans only (clean, practical, highly legible).
 - **Hierarchy behavior:**
   - Headlines: confident, slightly compact tracking, short line lengths.
   - Body: clear and neutral, optimized for scanning.

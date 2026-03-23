@@ -1,257 +1,388 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 
 import { AuthNavLink } from "./_components/auth-nav-link";
 import { MapExample } from "./_components/map-example";
 
 const title = "World Food Passport | Restaurant tracker for your food world";
 const description =
-  "Log and share restaurant visits, see your food world by place, and compare notes with friends and their best recommendations.";
+	"Log and share restaurant visits, see your food world by place, and compare notes with friends and their best recommendations.";
 
 export const metadata: Metadata = {
-  title,
-  description,
-  openGraph: {
-    title,
-    description,
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-  },
+	title,
+	description,
+	openGraph: {
+		title,
+		description,
+		type: "website",
+	},
+	twitter: {
+		card: "summary_large_image",
+		title,
+		description,
+	},
 };
 
 interface ChallengeItem {
-  title: string;
-  description: string;
+	title: string;
+	description: string;
 }
 
 interface FaqItem {
-  question: string;
-  answer: string;
+	question: string;
+	answer: string;
+}
+
+interface TrustSignalItem {
+	title: string;
+	description: string;
+}
+
+interface SectionShellProps {
+	id: string;
+	label: string;
+	title: string;
+	description: string;
+	children: ReactNode;
+	className?: string;
 }
 
 const challengeItems: ChallengeItem[] = [
-  {
-    title: "Asian top cuisines",
-    description: "Collect stamps across the most-loved Asian cuisines.",
-  },
-  {
-    title: "Europe must-try",
-    description: "Hit the classics across Europe, one city at a time.",
-  },
-  {
-    title: "Top 20 by population",
-    description: "Earn achievements as you taste your way through big nations.",
-  },
+	{
+		title: "Asian Top Cuisines",
+		description: "Collect stamps across the most-loved Asian cuisines.",
+	},
+	{
+		title: "Europe Must-Try",
+		description: "Hit the classics across Europe, one city at a time.",
+	},
+	{
+		title: "Top 20 by Population",
+		description:
+			"Earn achievements as you taste through the world's biggest nations.",
+	},
 ];
 
 const faqItems: FaqItem[] = [
-  {
-    question: "Is World Food Passport a restaurant tracker?",
-    answer:
-      "Yes. It is built for logging restaurants and keeping a visual map of your visits by place.",
-  },
-  {
-    question: "How do challenges and achievements work?",
-    answer:
-      "Challenges are coming soon. You will unlock achievements as you complete curated goals.",
-  },
-  {
-    question: "Can I organize visits with friends?",
-    answer:
-      "Group planning is coming soon so you can align on places and compare notes together.",
-  },
-  {
-    question: "Do I need an account to save visits?",
-    answer: "Yes. You will need an account to save places and your progress.",
-  },
+	{
+		question: "Is World Food Passport a restaurant tracker?",
+		answer:
+			"Yes. It is built for logging restaurants and keeping a visual map of your visits by place.",
+	},
+	{
+		question: "How do challenges and achievements work?",
+		answer:
+			"Challenges are coming soon. You will unlock curated achievement stamps as you complete food milestones.",
+	},
+	{
+		question: "Can I organize visits with friends?",
+		answer:
+			"Group planning is coming soon so you can align on places and compare notes together.",
+	},
+	{
+		question: "Do I need an account to save visits?",
+		answer: "Yes. You will need an account to save places and your progress.",
+	},
 ];
 
+const trustSignalItems: TrustSignalItem[] = [
+	{
+		title: "Real product preview",
+		description:
+			"See an actual passport map module before you create an account.",
+	},
+	{
+		title: "Track by location",
+		description:
+			"Log restaurants by country and city so memories stay tied to place.",
+	},
+	{
+		title: "Built for repeat use",
+		description:
+			"Keep notes, revisit favorites, and steadily grow your personal food map.",
+	},
+];
+
+function SectionShell({
+	id,
+	label,
+	title,
+	description,
+	children,
+	className,
+}: SectionShellProps) {
+	return (
+		<section
+			id={id}
+			aria-labelledby={`${id}-title`}
+			className={`border-t border-[#D3DAE6] pt-10 sm:pt-12 ${className ?? ""}`}
+		>
+			<p className="text-sm font-medium italic tracking-[0.01em] text-[#5B6472]">
+				{label}
+			</p>
+			<h2
+				id={`${id}-title`}
+				className="mt-3 max-w-3xl text-3xl font-medium leading-tight tracking-[-0.01em] text-[#1E3557] md:text-4xl"
+			>
+				{title}
+			</h2>
+			<p className="mt-4 max-w-3xl text-base leading-relaxed text-[#5B6472] md:text-lg">
+				{description}
+			</p>
+			<div className="mt-7 md:mt-8">{children}</div>
+		</section>
+	);
+}
+
 export default function LandingPage() {
-  return (
-    <main
-      className={`min-h-screen bg-[radial-gradient(70%_80%_at_50%_0%,#fff7e6_0%,#f4f1ea_55%,#efe8dc_100%)] text-slate-950`}
-    >
-      <div className="mx-auto flex min-h-screen max-w-4xl flex-col px-6 pb-16 pt-8">
-        <nav className="flex items-center justify-between text-sm text-slate-600">
-          <Link href="/" className="font-medium text-slate-950">
-            World Food Passport
-          </Link>
-          <Suspense
-            fallback={
-              <Link href="/auth/sign-in" className="hover:text-slate-900">
-                Sign In
-              </Link>
-            }
-          >
-            <AuthNavLink />
-          </Suspense>
-        </nav>
+	return (
+		<main className="min-h-screen bg-[#F5EFE3] text-[#1F2937]">
+			<div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 pb-20 pt-8 sm:px-6 lg:px-8">
+				<nav className="flex items-center justify-between text-sm text-[#5B6472]">
+					<Link href="/" className="text-lg font-medium text-[#1E3557]">
+						World Food Passport
+					</Link>
+					<Suspense
+						fallback={
+							<Link href="/auth/sign-in" className="hover:text-[#1E3557]">
+								Sign In
+							</Link>
+						}
+					>
+						<AuthNavLink />
+					</Suspense>
+				</nav>
 
-        <section className="mt-20 flex flex-1 flex-col items-center justify-center text-center">
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight text-balance md:text-5xl">
-            World Food Passport is the restaurant tracker for your food world.
-          </h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
-            One place to log and share your visits around the food world.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/auth/sign-up"
-              className="rounded-full bg-slate-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-slate-800"
-            >
-              Get Started
-            </Link>
-            <Link
-              href="/auth/sign-in"
-              className="rounded-full border border-slate-300 bg-white px-6 py-3 text-sm text-slate-900 transition hover:border-slate-400"
-            >
-              Stamp my map
-            </Link>
-          </div>
-        </section>
+				<div className="mt-10 flex flex-col gap-14 sm:mt-12 sm:gap-16 lg:gap-20">
+					<section
+						aria-labelledby="hero-title"
+						className="rounded-[30px] border border-[#E4E9F2] bg-gradient-to-b from-[#FFFDF8] to-[#FFF8EC] px-5 py-6 shadow-[0_22px_44px_-34px_rgba(30,53,87,0.5)] sm:px-8 sm:py-8 lg:px-10 lg:py-10"
+					>
+						<p className="text-sm font-medium italic tracking-[0.01em] text-[#5B6472]">
+							Passport map tracker
+						</p>
+						<div className="mt-5 grid items-center gap-8 md:grid-cols-[1.1fr_0.9fr] lg:gap-10">
+							<div>
+								<h1
+									id="hero-title"
+									className="max-w-xl text-4xl font-bold leading-[1.08] tracking-[-0.015em] text-[#1E3557] md:text-5xl"
+								>
+									Turn every great meal into a stamp on your world map.
+								</h1>
+								<p className="mt-4 max-w-xl text-base leading-relaxed text-[#5B6472] md:text-lg">
+									Track restaurants by place, save what was worth it, and build
+									a food passport you can actually use for your next decision.
+								</p>
+								<div className="mt-7 flex flex-wrap items-center gap-3">
+									<Link
+										href="/auth/sign-up"
+										className="rounded-full bg-[#1E3557] px-6 py-3 text-sm font-medium text-white hover:bg-[#172a45]"
+									>
+										Claim Your First Stamp
+									</Link>
+									<Link
+										href="/auth/sign-in"
+										className="rounded-full border border-[#D3DAE6] bg-[#FFFDF8] px-6 py-3 text-sm font-normal text-[#1E3557] hover:border-[#B8C3D4]"
+									>
+										Sign In and Continue
+									</Link>
+								</div>
+							</div>
 
-        <section className="mt-12 text-center">
-          <h2 className="text-lg font-semibold text-slate-900 md:text-xl">
-            See your food world, by place.
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
-            World Food Passport lets you visually see all the food you know, by
-            place, at a glance. You can compete against your friends or follow
-            their best recommendations when you need a sure thing.
-          </p>
-          <div className="mx-auto mt-8 w-full max-w-4xl rounded-3xl border border-slate-200 bg-white/80 p-4 shadow-sm md:p-6">
-            <div className="flex flex-col gap-3 text-left">
-              <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
-                  Example map
-                </span>
-                <span className="text-xs text-slate-500">Sample data only</span>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white/90 p-3 md:p-4">
-                <MapExample />
-              </div>
-            </div>
-          </div>
-        </section>
+							<div className="rounded-3xl border border-[#E4E9F2] bg-[#FFFDF8] p-4 shadow-[0_12px_30px_-26px_rgba(30,53,87,0.45)] md:p-6">
+								<div className="flex items-center justify-between gap-3">
+									<span className="rounded-full bg-[#D9A441]/20 px-3 py-1 text-xs font-medium text-[#7A5827]">
+										Live preview
+									</span>
+									<span className="text-xs text-[#5B6472]">
+										Sample data shown
+									</span>
+								</div>
+								<div className="mt-3 rounded-2xl border border-[#E4E9F2] bg-white p-3 md:p-4">
+									<MapExample />
+								</div>
+							</div>
+						</div>
 
-        <section className="mt-14 w-full">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <h2 className="text-2xl font-semibold text-slate-900">
-              Challenges, achievements, and friends
-            </h2>
-            <p className="max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
-              A gamified, social way to enjoy new restaurants and keep the fun
-              going with your crew.
-            </p>
-          </div>
+						<div className="mt-9 grid gap-3 sm:gap-4 md:grid-cols-3">
+							{trustSignalItems.map((item) => (
+								<div
+									key={item.title}
+									className="rounded-2xl border border-[#E4E9F2] bg-white px-4 py-4"
+								>
+									<p className="text-sm font-medium text-[#1E3557]">
+										{item.title}
+									</p>
+									<p className="mt-2 text-sm leading-relaxed text-[#5B6472]">
+										{item.description}
+									</p>
+								</div>
+							))}
+						</div>
+					</section>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-[1.15fr_0.85fr]">
-            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-900">
-                  Challenge and achievements
-                </h3>
-                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
-                  Coming soon
-                </span>
-              </div>
-              <div className="mt-5 grid gap-4">
-                {challengeItems.map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <h4 className="text-sm font-semibold text-slate-900">
-                        {item.title}
-                      </h4>
-                      <span className="rounded-full border border-amber-200 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                        Coming soon
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                      {item.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
+					<SectionShell
+						id="story"
+						label="Why this feels different"
+						title="Meals become memories when context is easy to revisit."
+						description="Most restaurant apps become long lists. World Food Passport keeps every place connected to location, so your history stays useful when you want to plan what is next."
+					>
+						<div className="grid gap-4 md:grid-cols-2">
+							<div className="rounded-2xl border border-[#E4E9F2] bg-white px-5 py-5">
+								<p className="text-base font-medium text-[#1E3557]">
+									From list to story
+								</p>
+								<p className="mt-3 text-sm leading-relaxed text-[#5B6472]">
+									Every saved restaurant includes where it happened, what stood
+									out, and why you would return. Your passport becomes a real
+									memory guide, not a backlog you forget.
+								</p>
+							</div>
+							<div className="rounded-2xl border border-[#E4E9F2] bg-[#F8FBFF] px-5 py-5">
+								<p className="text-base font-medium text-[#1E3557]">
+									Practical every week
+								</p>
+								<p className="mt-3 text-sm leading-relaxed text-[#5B6472]">
+									Use your map to answer familiar questions quickly: where to go
+									this weekend, what is worth revisiting, and which places to
+									share with friends who trust your taste.
+								</p>
+							</div>
+						</div>
+					</SectionShell>
 
-            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-900">
-                  Organize visits with friends
-                </h3>
-                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
-                  Coming soon
-                </span>
-              </div>
-              <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                Plan restaurant runs together, keep shared wishlists, and make
-                it easy to pick the next spot when the group chat is stuck.
-              </p>
-              <div className="mt-6 rounded-2xl border border-dashed border-amber-300 bg-amber-50/70 px-4 py-4 text-left">
-                <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
-                  Social playbook
-                </p>
-                <p className="mt-2 text-sm text-amber-900">
-                  Create a weekend plan, invite friends, and earn shared
-                  achievements together.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+					<SectionShell
+						id="challenges"
+						label="Challenges and achievements"
+						title="Challenges and achievement stamps keep your map growing."
+						description="This is the strongest next layer of the product: clear milestones that make exploration feel directed without turning it into a game overload."
+					>
+						<div className="rounded-[28px] border border-[#E8DAB9] bg-[#FFF9EE] p-5 sm:p-6 lg:p-8">
+							<div className="flex items-start justify-between gap-4">
+								<p className="max-w-2xl text-sm leading-relaxed text-[#5B6472]">
+									Complete curated food tracks, unlock stamp-style achievements,
+									and see your progress by cuisine and region.
+								</p>
+								<span className="rounded-full bg-[#D9A441]/20 px-3 py-1 text-xs font-medium text-[#7A5827]">
+									Coming soon
+								</span>
+							</div>
 
-        <section className="mt-16 w-full">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold text-slate-900">FAQ</h2>
-            <p className="mt-3 text-base text-slate-600 md:text-lg">
-              Short answers to the most common questions.
-            </p>
-          </div>
-          <div className="mt-8 grid gap-4">
-            {faqItems.map((item) => (
-              <div
-                key={item.question}
-                className="rounded-2xl border border-slate-200 bg-white/90 px-5 py-4"
-              >
-                <h3 className="text-sm font-semibold text-slate-900">
-                  {item.question}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  {item.answer}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
+							<div className="mt-6 grid gap-4 md:grid-cols-3">
+								{challengeItems.map((item) => (
+									<div
+										key={item.title}
+										className="rounded-2xl border border-[#E8DAB9] bg-[#FFFDF8] px-4 py-4"
+									>
+										<div className="flex items-center justify-between gap-3">
+											<h3 className="text-sm font-medium text-[#1E3557]">
+												{item.title}
+											</h3>
+											<span className="rounded-full border border-[#D9A441]/60 px-2 py-0.5 text-[11px] font-medium text-[#8B6A34]">
+												Soon
+											</span>
+										</div>
+										<p className="mt-2 text-sm leading-relaxed text-[#5B6472]">
+											{item.description}
+										</p>
+									</div>
+								))}
+							</div>
+						</div>
+					</SectionShell>
 
-        <footer className="mt-16 border-t border-slate-200 pt-8 text-sm text-slate-600">
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <span>World Food Passport</span>
-            <div className="flex flex-wrap items-center gap-4">
-              <Link href="/privacy" className="hover:text-slate-900">
-                Privacy
-              </Link>
-              <Link href="/terms" className="hover:text-slate-900">
-                Terms
-              </Link>
-              <a
-                href="mailto:contact@worldfoodpassport.com"
-                className="hover:text-slate-900"
-              >
-                Contact
-              </a>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </main>
-  );
+					<SectionShell
+						id="social"
+						label="Shared recommendations"
+						title="Find the next spot faster with people you trust."
+						description="Recommendation quality improves when you can see where friends actually go and what they thought, without digging through old chats."
+					>
+						<div className="grid gap-4 md:grid-cols-2">
+							<div className="rounded-2xl border border-[#E4E9F2] bg-white px-5 py-5">
+								<h3 className="text-base font-medium text-[#1E3557]">
+									Shared shortlist, less debate
+								</h3>
+								<p className="mt-3 text-sm leading-relaxed text-[#5B6472]">
+									Build a short list together, compare notes side by side, and
+									choose faster when it is time to book a table.
+								</p>
+							</div>
+							<div className="rounded-2xl border border-[#E4E9F2] bg-[#F8FBFF] px-5 py-5">
+								<h3 className="text-base font-medium text-[#1E3557]">
+									Recommendations with context
+								</h3>
+								<p className="mt-3 text-sm leading-relaxed text-[#5B6472]">
+									See who recommended a place, when they visited, and what they
+									loved so choices feel informed, not random.
+								</p>
+							</div>
+						</div>
+					</SectionShell>
+
+					<SectionShell
+						id="faq"
+						label="Trust and practical details"
+						title="Quick answers before your first stamp."
+						description="Everything important up front so you can sign up with confidence."
+					>
+						<div className="grid gap-4">
+							{faqItems.map((item) => (
+								<div
+									key={item.question}
+									className="rounded-2xl border border-[#E4E9F2] bg-white px-5 py-4"
+								>
+									<h3 className="text-sm font-medium text-[#1E3557]">
+										{item.question}
+									</h3>
+									<p className="mt-2 text-sm leading-relaxed text-[#5B6472]">
+										{item.answer}
+									</p>
+								</div>
+							))}
+						</div>
+
+						<div className="mt-6 rounded-2xl border border-[#D3DAE6] bg-[#F8FBFF] px-5 py-5 sm:flex sm:items-center sm:justify-between sm:gap-4">
+							<div>
+								<p className="text-sm font-medium text-[#1E3557]">
+									Ready to start your passport?
+								</p>
+								<p className="mt-1 text-sm text-[#5B6472]">
+									Create your account and log your first restaurant in minutes.
+								</p>
+							</div>
+							<Link
+								href="/auth/sign-up"
+								className="mt-4 inline-flex rounded-full bg-[#1E3557] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#172a45] sm:mt-0"
+							>
+								Sign Up Now
+							</Link>
+						</div>
+					</SectionShell>
+				</div>
+
+				<footer className="mt-14 border-t border-[#D3DAE6] pt-8 text-sm text-[#5B6472]">
+					<div className="flex flex-col items-center justify-between gap-4 sm:flex-row sm:gap-6">
+						<span className="text-base font-medium text-[#1E3557]">
+							World Food Passport
+						</span>
+						<div className="flex flex-wrap items-center gap-4">
+							<Link href="/privacy" className="hover:text-[#1E3557]">
+								Privacy
+							</Link>
+							<Link href="/terms" className="hover:text-[#1E3557]">
+								Terms
+							</Link>
+							<a
+								href="mailto:contact@worldfoodpassport.com"
+								className="hover:text-[#1E3557]"
+							>
+								Contact
+							</a>
+						</div>
+					</div>
+				</footer>
+			</div>
+		</main>
+	);
 }
